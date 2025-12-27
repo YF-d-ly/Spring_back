@@ -1,9 +1,5 @@
-package com.yf.entity;
+package com.yf.entity.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,18 +12,22 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("xmut_stock_log")
-@Schema(description = "库存日志")
-public class StockLog {
-    @TableId(type = IdType.ASSIGN_ID)
+@Schema(description = "库存日志视图对象")
+public class StockLogVO {
     @Schema(description = "日志ID")
     private String id;
     
     @Schema(description = "货品ID")
     private String goodsId;
     
+    @Schema(description = "货品名称")
+    private String goodsName;
+    
     @Schema(description = "仓库ID")
     private String warehouseId;
+    
+    @Schema(description = "仓库名称")
+    private String warehouseName;
     
     @Schema(description = "日志类型")
     private Integer type;
@@ -43,12 +43,4 @@ public class StockLog {
     
     @Schema(description = "调拨ID")
     private String transferId;
-    
-    @TableField(exist = false)
-    @Schema(description = "货品名称")
-    private String goodsName;
-    
-    @TableField(exist = false)
-    @Schema(description = "仓库名称")
-    private String warehouseName;
 }

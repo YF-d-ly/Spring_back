@@ -1,8 +1,16 @@
 package com.yf.controller;
 
 import com.yf.entity.StockLog;
+import com.yf.entity.dto.InboundDTO;
+import com.yf.entity.dto.OutboundDTO;
+import com.yf.entity.dto.StockLogQueryDTO;
+import com.yf.entity.dto.TransferDTO;
+import com.yf.entity.vo.GoodVO;
+import com.yf.entity.vo.StockLogVO;
 import com.yf.service.StockLogService;
+import com.yf.util.PageResult;
 import com.yf.util.Result;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,37 +25,36 @@ public class StockController {
     @Autowired
     private StockLogService stockLogService;
 
-    // 获取出入库记录列表
-    @GetMapping("/log/list")
-    public Result<List<StockLog>> getStockLogList(
-            @RequestParam(value = "goodsId", required = false) String goodsId,
-            @RequestParam(value = "warehouseId", required = false) String warehouseId,
-            @RequestParam(value = "type", required = false) Integer type,
-            @RequestParam(value = "page", defaultValue = "1") Integer page,
-            @RequestParam(value = "size", defaultValue = "10") Integer size) {
-        // 实现获取出入库记录列表逻辑
-        List<StockLog> stockLogList = stockLogService.list(); // 临时实现
-        return Result.success(stockLogList, "获取出入库记录列表成功");
+    
+    // 分页获取出入库记录
+    @GetMapping("/log/page")
+    @Operation(summary = "分页获取出入库记录", description = "根据条件分页获取出入库记录")
+    public Result<PageResult<StockLogVO>> pageQuery(StockLogQueryDTO queryDTO) {
+        PageResult<StockLogVO> pageResult = stockLogService.pageQuery(queryDTO);
+        return Result.success(pageResult, "分页获取出入库记录成功");
     }
 
     // 添加入库记录
     @PostMapping("/inbound")
-    public Result<String> addInbound(@RequestBody Object data) {
-        // 实现添加入库记录逻辑
+    @Operation(summary = "添加入库记录", description = "创建一条入库记录")
+    public Result<String> addInbound(@RequestBody InboundDTO inboundDTO) {
+        stockLogService.addInbound(inboundDTO);
         return Result.success("添加入库记录成功");
     }
 
     // 添加出库记录
     @PostMapping("/outbound")
-    public Result<String> addOutbound(@RequestBody Object data) {
-        // 实现出库记录逻辑
+    @Operation(summary = "添加出库记录", description = "创建一条出库记录")
+    public Result<String> addOutbound(@RequestBody OutboundDTO outboundDTO) {
+        stockLogService.addOutbound(outboundDTO);
         return Result.success("添加出库记录成功");
     }
 
     // 调货
     @PostMapping("/transfer")
-    public Result<String> transferGoods(@RequestBody Object data) {
-        // 实现调货逻辑
+    @Operation(summary = "调货", description = "在不同仓库间调货")
+    public Result<String> transferGoods(@RequestBody TransferDTO transferDTO) {
+        stockLogService.transferGoods(transferDTO);
         return Result.success("调货成功");
     }
 }

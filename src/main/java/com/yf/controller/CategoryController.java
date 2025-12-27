@@ -36,6 +36,14 @@ public class CategoryController {
         return Result.success(categoryVOList, "获取类别名称成功");
     }
 
+    @GetMapping("/list")
+    @Operation(summary = "获取类别列表", description = "获取所有类别信息")
+    public Result<List<Category>> getCategoryList() {
+        List<Category> categoryList = categoryService.list();
+        return Result.success(categoryList, "获取类别列表成功");
+    }
+
+
     // 添加货品类别
     @PostMapping("/add")
     @Operation(summary = "添加类别", description = "添加一个新的商品类别")

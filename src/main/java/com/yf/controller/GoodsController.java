@@ -5,6 +5,7 @@ import com.yf.entity.Goods;
 import com.yf.entity.Category;
 import com.yf.entity.dto.GoodsDTO;
 import com.yf.entity.dto.GoodsPageQueryDTO;
+import com.yf.entity.vo.GoodNameVO;
 import com.yf.entity.vo.GoodVO;
 import com.yf.entity.vo.CategoryVO;
 import com.yf.service.GoodsService;
@@ -59,11 +60,21 @@ public class GoodsController {
         }).collect(Collectors.toList());
         
         return Result.success(goodsVO, "获取货品列表成功");
-        
-        
 
     }
 
+    @GetMapping("/list")
+    public Result<List<GoodNameVO>> getGoodsNameList() {
+        List<Goods> goods = goodsService.list();
+        List<GoodNameVO>goodsVO= goods.stream().map(good -> {
+            return GoodNameVO.builder()
+                    .id(good.getId())
+                    .name(good.getName())
+                    .stock(good.getStock())
+                    .build();
+        }).collect(Collectors.toList());
+        return Result.success(goodsVO, "获取货品列表成功");
+    }
 
     @GetMapping("/page")
     public Result<PageResult<GoodVO>> pageQuery( GoodsPageQueryDTO queryDTO) {
@@ -82,8 +93,11 @@ public class GoodsController {
 
 
     // 添加货品
-    @GetMapping("/add")
+    @PostMapping("/add")
     public Result<String> addGoods(@RequestBody GoodsDTO goodsDTO) {
+        if (goodsDTO.getName() == null || goodsDTO.getName().trim().isEmpty()) {
+            return Result.error("货品名称不能为空");
+        }
 
         Goods good = new Goods();
         good.setName(goodsDTO.getName());
@@ -105,6 +119,10 @@ public class GoodsController {
     // 更新货品
     @PutMapping("/update")
     public Result<String> updateGoods(@RequestBody GoodsDTO goodsDTO) {
+        if (goodsDTO.getId() == null) {
+            return Result.error("货品ID不能为空");
+        }
+
         Goods goods = new Goods();
         goods.setId(goodsDTO.getId());
         goods.setName(goodsDTO.getName());

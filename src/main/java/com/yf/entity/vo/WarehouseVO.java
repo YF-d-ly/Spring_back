@@ -24,8 +24,11 @@ public class WarehouseVO {
     @Schema(description = "联系人")
     private String contact;
 
-    @Schema(description = "联系电话")
+    @Schema(description = "联系方式")
     private String phone;
+
+    @Schema(description = "描述")
+    private String description;
 
     @Schema(description = "状态")
     private Integer status;

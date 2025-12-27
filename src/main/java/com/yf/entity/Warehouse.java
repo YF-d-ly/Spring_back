@@ -25,7 +25,9 @@ public class Warehouse {
     
     @Schema(description = "仓库地址")
     private String address;
-    
+
+    @Schema(description = "仓库描述")
+    private String description;
 
     
     @Schema(description = "联系人")

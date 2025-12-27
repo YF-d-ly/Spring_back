@@ -45,17 +45,15 @@ public class WarehouseController {
         return Result.success(warehouseNameVOList, "获取仓库名称列表成功");
     }
 
-    // 获取仓库列表
-    @GetMapping("/list")
-    public Result<List<Warehouse>> getWarehouseList(
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "address", required = false) String address,
-            @RequestParam(value = "page", defaultValue = "1") Integer page,
-            @RequestParam(value = "size", defaultValue = "10") Integer size) {
-        // 实现获取仓库列表逻辑
-        List<Warehouse> warehouseList = warehouseService.list(); // 临时实现
-        return Result.success(warehouseList, "获取仓库列表成功");
+    //分页获取仓库
+    @GetMapping("/Page" )
+    public Result<PageResult<WarehouseVO>> pageQuery(WarehouseQueryDTO queryDTO) {
+        PageResult<WarehouseVO> warehouseList = warehouseService.pageQuery(queryDTO);
+        return Result.success(warehouseList, "分页获取仓库成功");
+
     }
+
+
 
 
 

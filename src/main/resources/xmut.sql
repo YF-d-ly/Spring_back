@@ -20,6 +20,7 @@ CREATE TABLE xmut_warehouse (
                                 id VARCHAR(45) PRIMARY KEY COMMENT 'UUID',
                                 name VARCHAR(100) NOT NULL COMMENT '仓库名称',
                                 address VARCHAR(255) NOT NULL COMMENT '仓库地址',
+                                description VARCHAR(500) COMMENT '仓库描述',
                                 contact VARCHAR(50) COMMENT '联系人',
                                 phone VARCHAR(20) COMMENT '联系电话',
                                 status TINYINT DEFAULT 1 COMMENT '状态：0=禁用，1=启用',
@@ -149,10 +150,13 @@ SELECT 'USER_ADMIN', id FROM xmut_menu;
 -- ========================
 
 -- 插入仓库数据
-INSERT INTO xmut_warehouse (id, name, address, contact, phone, status) VALUES
-('WH001', 'A仓库', '福建省厦门市集美区理工路600号A栋', '张主任', '0592-1111111', 1),
-('WH002', 'B仓库', '福建省厦门市集美区理工路600号B栋', '李主任', '0592-2222222', 1),
-('WH003', 'C仓库', '福建省厦门市集美区理工路600号C栋', '王主任', '0592-3333333', 1);
+INSERT INTO xmut_warehouse (id, name, address, description, contact, phone, status) VALUES
+('WH001', 'A仓库', '福建省厦门市集美区理工路600号A栋', '主要存放电子产品', '张主任', '0592-1111111', 1),
+('WH002', 'B仓库', '福建省厦门市集美区理工路600号B栋', '主要存放机械设备', '李主任', '0592-2222222', 1),
+('WH003', 'C仓库', '福建省厦门市集美区理工路600号C栋', '主要存放原材料', '王主任', '0592-3333333', 1),
+('WH004', 'D仓库', '福建省厦门市集美区理工路600号D栋', '主要存放办公用品', '陈主任', '0592-4444444', 1),
+('WH005', 'E仓库', '福建省厦门市集美区理工路600号E栋', '主要存放食品', '刘主任', '0592-5555555', 0),
+('WH006', 'F仓库', '福建省厦门市集美区理工路600号F栋', '主要存放纺织品', '赵主任', '0592-6666666', 1);
 
 -- 插入货品类别数据
 INSERT INTO xmut_category (id, name, description) VALUES
@@ -172,6 +176,20 @@ INSERT INTO xmut_goods (id, name, price, image_url, stock, category_id, warehous
 ('GOODS006', '矿泉水', 2.00, '/images/water.jpg', 500, 'CAT004', 'WH002', '550ml瓶装矿泉水'),
 ('GOODS007', 'C++程序设计', 65.80, '/images/book.jpg', 40, 'CAT005', 'WH003', 'C++程序设计教材'),
 ('GOODS008', '文件夹', 8.50, '/images/folder.jpg', 250, 'CAT002', 'WH003', 'A4文件夹');
+
+-- 插入出入库记录数据
+INSERT INTO xmut_stock_log (id, goods_id, warehouse_id, type, num, operator, create_time, transfer_id) VALUES
+('STOCK001', 'GOODS001', 'WH001', 1, 10, 'admin', '2024-01-15 09:30:00', NULL),
+('STOCK002', 'GOODS002', 'WH001', 1, 50, 'admin', '2024-01-16 10:15:00', NULL),
+('STOCK003', 'GOODS003', 'WH001', 1, 20, 'admin', '2024-01-17 11:45:00', NULL),
+('STOCK004', 'GOODS004', 'WH002', 1, 100, 'admin', '2024-01-18 14:20:00', NULL),
+('STOCK005', 'GOODS005', 'WH002', 1, 30, 'admin', '2024-01-19 15:10:00', NULL),
+('STOCK006', 'GOODS006', 'WH002', 1, 200, 'admin', '2024-01-20 16:05:00', NULL),
+('STOCK007', 'GOODS007', 'WH003', 1, 15, 'admin', '2024-01-21 09:00:00', NULL),
+('STOCK008', 'GOODS008', 'WH003', 1, 80, 'admin', '2024-01-22 10:30:00', NULL),
+('STOCK009', 'GOODS001', 'WH001', 2, 2, 'user001', '2024-01-23 13:45:00', NULL),  -- 出库记录
+('STOCK010', 'GOODS004', 'WH002', 2, 10, 'user002', '2024-01-24 14:30:00', NULL);  -- 出库记录
+
 
 -- 插入普通用户
 INSERT INTO xmut_user (id, account, password, nickname, telephone, mobile, email, role, status) VALUES
