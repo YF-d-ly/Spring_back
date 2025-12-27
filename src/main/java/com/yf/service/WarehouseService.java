@@ -1,0 +1,11 @@
+package com.yf.service;
+
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.yf.entity.Warehouse;
+import com.yf.entity.dto.WarehouseDTO;
+
+public interface WarehouseService extends IService<Warehouse> {
+    void save(WarehouseDTO warehouseDTO);
+
+    void updateById(WarehouseDTO warehouseDTO);
+}

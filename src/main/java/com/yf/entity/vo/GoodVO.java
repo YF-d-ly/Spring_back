@@ -30,8 +30,14 @@ public class GoodVO {
     @Schema(description = "库存")
     private Integer stock;
 
+    @Schema(description = "仓库ID")
+    private String warehouseId;
+
     @Schema(description = "仓库名称")
     private String  warehouseName;
+
+    @Schema(description = "类别ID")
+    private String categoryId;
 
     @Schema(description = "类别名称")
     private String categoryName;
