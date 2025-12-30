@@ -7,7 +7,9 @@ import com.yf.entity.dto.OutboundDTO;
 import com.yf.entity.dto.StockLogQueryDTO;
 import com.yf.entity.dto.TransferDTO;
 import com.yf.entity.vo.StockLogVO;
+import com.yf.entity.vo.TransferVO;
 import com.yf.util.PageResult;
+import java.util.List;
 
 public interface StockLogService extends IService<StockLog> {
      void addInbound(InboundDTO inboundDTO);
@@ -17,4 +19,6 @@ public interface StockLogService extends IService<StockLog> {
     void transferGoods(TransferDTO transferDTO);
     
     PageResult<StockLogVO> pageQuery(StockLogQueryDTO queryDTO);
+
+    List<TransferVO> getTransferLog();
 }

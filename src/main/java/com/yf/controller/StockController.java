@@ -7,6 +7,7 @@ import com.yf.entity.dto.StockLogQueryDTO;
 import com.yf.entity.dto.TransferDTO;
 import com.yf.entity.vo.GoodVO;
 import com.yf.entity.vo.StockLogVO;
+import com.yf.entity.vo.TransferVO;
 import com.yf.service.StockLogService;
 import com.yf.util.PageResult;
 import com.yf.util.Result;
@@ -56,5 +57,13 @@ public class StockController {
     public Result<String> transferGoods(@RequestBody TransferDTO transferDTO) {
         stockLogService.transferGoods(transferDTO);
         return Result.success("调货成功");
+    }
+    //获取调货日志
+    @GetMapping("/transfer/log")
+    @Operation(summary = "获取调货日志", description = "获取调货日志")
+    public Result<List<TransferVO>> getTransferLog() {
+        List<TransferVO> transferLog = stockLogService.getTransferLog();
+        return Result.success(transferLog, "获取调货日志成功");
+
     }
 }

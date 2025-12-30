@@ -5,6 +5,7 @@ import com.yf.entity.Warehouse;
 import com.yf.entity.dto.WarehouseDTO;
 import com.yf.entity.dto.WarehouseQueryDTO;
 import com.yf.entity.vo.CategoryVO;
+import com.yf.entity.vo.GoodVO;
 import com.yf.entity.vo.WarehouseNameVO;
 import com.yf.entity.vo.WarehouseVO;
 
@@ -52,6 +53,7 @@ public class WarehouseController {
         return Result.success(warehouseList, "分页获取仓库成功");
 
     }
+
 
 
 

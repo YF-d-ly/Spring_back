@@ -7,6 +7,7 @@ import com.yf.entity.Category;
 import com.yf.entity.Goods;
 import com.yf.entity.Warehouse;
 import com.yf.entity.dto.GoodsPageQueryDTO;
+import com.yf.entity.vo.GoodNameVO;
 import com.yf.entity.vo.GoodVO;
 
 import com.yf.mapper.GoodsMapper;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,6 +41,38 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements
 
     @Autowired
     private WarehouseService warehouseService;
+
+    @Override
+    public void updateStockForTransfer(String goodsId, String sourceWarehouseId, String targetWarehouseId, Integer num) {
+        // 构建库存日志对象
+        Goods goods = new Goods();
+        goods.setId(goodsId);
+        goods.setWarehouseId(targetWarehouseId);
+        goods.setStock(num);
+        goods.setUpdatedAt(LocalDateTime.now());
+
+        // 更新库存
+        this.updateById(goods);
+    }
+
+    @Override
+    public List<GoodNameVO> getGoodsByWarehouse(String warehouseId) {
+        // 创建查询条件，根据仓库ID查询货品
+        LambdaQueryWrapper<Goods> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Goods::getWarehouseId, warehouseId);
+
+        // 查询货品列表
+        List<Goods> goodsList = goodsMapper.selectList(queryWrapper);
+
+        // 将Goods实体列表转换为GoodNameVO列表
+        return goodsList.stream()
+                .map(goods -> GoodNameVO.builder()
+                        .id(goods.getId())
+                        .name(goods.getName())
+                        .stock(goods.getStock())
+                        .build())
+                .collect(Collectors.toList());
+    }
 
     @Override
     public PageResult<GoodVO> pageQuery(GoodsPageQueryDTO queryDTO) {

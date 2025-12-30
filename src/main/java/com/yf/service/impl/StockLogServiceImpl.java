@@ -7,25 +7,32 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yf.constant.stockConstant;
 import com.yf.entity.Goods;
 import com.yf.entity.StockLog;
+import com.yf.entity.Warehouse;
 import com.yf.entity.dto.InboundDTO;
 import com.yf.entity.dto.OutboundDTO;
 import com.yf.entity.dto.StockLogQueryDTO;
 import com.yf.entity.dto.TransferDTO;
 import com.yf.entity.vo.StockLogVO;
+import com.yf.entity.vo.TransferVO;
+import com.yf.mapper.StockLogCustomMapper;
 import com.yf.mapper.StockLogMapper;
 import com.yf.service.GoodsService;
 import com.yf.service.StockLogService;
 import com.yf.service.WarehouseService;
 import com.yf.util.PageResult;
-import org.springframework.beans.BeanUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class StockLogServiceImpl extends ServiceImpl<StockLogMapper, StockLog> implements StockLogService {
 
@@ -34,6 +41,16 @@ public class StockLogServiceImpl extends ServiceImpl<StockLogMapper, StockLog> i
 
     @Autowired
     private WarehouseService  warehouseService;
+    
+    @Autowired
+    private StockLogCustomMapper stockLogCustomMapper;
+
+    @Override
+    public List<TransferVO> getTransferLog(){
+        // 使用自定义Mapper查询调拨日志
+        return stockLogCustomMapper.selectTransferLogs();
+    }
+
 
     @Override
     public void addInbound(InboundDTO inboundDTO) {
@@ -46,6 +63,7 @@ public class StockLogServiceImpl extends ServiceImpl<StockLogMapper, StockLog> i
                 .operator(inboundDTO.getOperator())
                 .createTime(LocalDateTime.now())
                 .transferId(inboundDTO.getTransferId())
+                .remark(inboundDTO.getRemark())
                 .build();
 
         // 保存入库记录到数据库
@@ -62,6 +80,7 @@ public class StockLogServiceImpl extends ServiceImpl<StockLogMapper, StockLog> i
                 .num(outboundDTO.getNum())
                 .operator(outboundDTO.getOperator())
                 .createTime(LocalDateTime.now())
+                .remark(outboundDTO.getRemark())
                 .transferId(outboundDTO.getTransferId())
                 .build();
 
@@ -71,19 +90,44 @@ public class StockLogServiceImpl extends ServiceImpl<StockLogMapper, StockLog> i
 
     @Override
     public void transferGoods(TransferDTO transferDTO) {
-        // 构建库存日志对象
-        StockLog stockLog = StockLog.builder()
+        // 生成唯一的调货ID，如果未提供的话
+        if (transferDTO.getTransferId() == null || transferDTO.getTransferId().isEmpty()) {
+            transferDTO.setTransferId("TRANSFER_" + System.currentTimeMillis());
+        }
+
+        // 创建出库记录（从源仓库出库）
+        StockLog outboundLog = StockLog.builder()
                 .goodsId(transferDTO.getGoodsId())
-                .warehouseId(transferDTO.getTargetWarehouseId())
-                .type(stockConstant.outbound)
+                .warehouseId(transferDTO.getSourceWarehouseId())
+                .type(stockConstant.outbound) // 出库类型
                 .num(transferDTO.getNum())
                 .operator(transferDTO.getOperator())
                 .createTime(LocalDateTime.now())
-                .transferId(transferDTO.getTransferId())
+                .transferId(transferDTO.getTransferId()) // 关联到同一次调货
+                .remark(transferDTO.getRemark() != null ? transferDTO.getRemark() + "-" + stockConstant.TRANSFER_OUTBOUND_REMARK : stockConstant.TRANSFER_OUTBOUND_REMARK)
                 .build();
 
-        // 保存调货记录到数据库
-        this.save(stockLog);
+        // 创建入库记录（到目标仓库入库）
+        StockLog inboundLog = StockLog.builder()
+                .goodsId(transferDTO.getGoodsId())
+                .warehouseId(transferDTO.getTargetWarehouseId())
+                .type(stockConstant.inbound) // 入库类型
+                .num(transferDTO.getNum())
+                .operator(transferDTO.getOperator())
+                .createTime(LocalDateTime.now())
+                .transferId(transferDTO.getTransferId()) // 关联到同一次调货
+                .remark(transferDTO.getRemark() != null ? transferDTO.getRemark() + "-" + stockConstant.TRANSFER_INBOUND_REMARK : stockConstant.TRANSFER_INBOUND_REMARK)
+                .build();
+
+        // 保存出库和入库记录到数据库
+        this.save(outboundLog);
+        this.save(inboundLog);
+
+        // 更新货品库存：从源仓库减少库存，目标仓库增加库存
+        goodsService.updateStockForTransfer(transferDTO.getGoodsId(), 
+                transferDTO.getSourceWarehouseId(), 
+                transferDTO.getTargetWarehouseId(), 
+                transferDTO.getNum());
     }
 
 
@@ -163,6 +207,7 @@ public class StockLogServiceImpl extends ServiceImpl<StockLogMapper, StockLog> i
                                 .operator(stockLog.getOperator())
                                 .createTime(stockLog.getCreateTime())
                                 .transferId(stockLog.getTransferId())
+                                .remark(stockLog.getRemark())
                                 .goodsName(goodsNameMap != null ? goodsNameMap.get(stockLog.getGoodsId()) : null)
                                 .warehouseName(warehouseService.getById(stockLog.getWarehouseId()).getName())
                                 .build();
@@ -179,4 +224,7 @@ public class StockLogServiceImpl extends ServiceImpl<StockLogMapper, StockLog> i
                     result.getCurrent()          // 当前页码
             );
         }
+
+
+
     }

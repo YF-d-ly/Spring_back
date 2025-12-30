@@ -3,10 +3,13 @@ package com.yf.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yf.entity.Goods;
 import com.yf.entity.dto.GoodsPageQueryDTO;
+import com.yf.entity.vo.GoodNameVO;
 import com.yf.entity.vo.GoodVO;
 
 import com.yf.util.PageResult;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 public interface GoodsService extends IService<Goods> {
     /**
@@ -18,6 +21,17 @@ public interface GoodsService extends IService<Goods> {
     String uploadImage(MultipartFile file);
 
 
+    List<GoodNameVO> getGoodsByWarehouse(String warehouseId);
+
+
     PageResult<GoodVO> pageQuery(GoodsPageQueryDTO queryDTO);
 
+    /**
+     * 更新调货库存
+     * @param goodsId 货品ID
+     * @param sourceWarehouseId 源仓库ID
+     * @param targetWarehouseId 目标仓库ID
+     * @param num 调货数量
+     */
+    void updateStockForTransfer(String goodsId, String sourceWarehouseId, String targetWarehouseId, Integer num);
 }

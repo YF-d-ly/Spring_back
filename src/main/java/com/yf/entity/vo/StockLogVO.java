@@ -37,6 +37,9 @@ public class StockLogVO {
     
     @Schema(description = "操作人")
     private String operator;
+
+    @Schema(description = "备注")
+    private String remark;
     
     @Schema(description = "创建时间")
     private LocalDateTime createTime;

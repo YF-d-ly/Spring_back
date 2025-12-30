@@ -4,14 +4,18 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yf.entity.Goods;
 import com.yf.entity.Warehouse;
 import com.yf.entity.dto.WarehouseDTO;
 import com.yf.entity.dto.WarehouseQueryDTO;
+import com.yf.entity.vo.GoodVO;
 import com.yf.entity.vo.WarehouseVO;
+import com.yf.mapper.GoodsMapper;
 import com.yf.mapper.WarehouseMapper;
 import com.yf.service.WarehouseService;
 import com.yf.util.PageResult;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +24,9 @@ import java.util.stream.Stream;
 
 @Service
 public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse> implements WarehouseService {
+    
+    @Autowired
+    private GoodsMapper goodsMapper;
     
     @Override
     public void save(WarehouseDTO warehouseDTO) {
@@ -83,4 +90,8 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
             result.getCurrent()          // 当前页码
         );
     }
+
+
+
+
 }

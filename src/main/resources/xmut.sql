@@ -110,6 +110,7 @@ CREATE TABLE xmut_stock_log (
                                 operator VARCHAR(45) NOT NULL COMMENT '操作人账号（xmut_user.account）',
                                 create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
                                 transfer_id VARCHAR(45) NULL COMMENT '调货单ID：非NULL表示属于某次调货',
+                                remark VARCHAR(255) COMMENT '备注',
                                 FOREIGN KEY (goods_id) REFERENCES xmut_goods(id) ON DELETE RESTRICT,
                                 FOREIGN KEY (warehouse_id) REFERENCES xmut_warehouse(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB COMMENT='出入库记录';
@@ -137,7 +138,7 @@ INSERT INTO xmut_menu (id, menu_name, menu_path, icon, parent_id, sort_order) VA
                                                                                   ('MENU_01', '系统管理', '/system', 'setting', NULL, 1),
                                                                                   ('MENU_02', '用户管理', '/system/user', 'user', 'MENU_01', 1),
                                                                                   ('MENU_03', '仓库管理', '/warehouse/list', 'warehouse', NULL, 2),
-                                                                                  ('MENU_04', '货品管理', '/goods/list', 'package', NULL, 3),
+('MENU_04', '货品管理', '/goods/list', 'package', NULL, 3),
                                                                                   ('MENU_05', '出入库记录', '/stock/log', 'history', NULL, 4),
                                                                                   ('MENU_06', '数据统计', '/report', 'bar-chart', NULL, 5);
 
@@ -178,17 +179,17 @@ INSERT INTO xmut_goods (id, name, price, image_url, stock, category_id, warehous
 ('GOODS008', '文件夹', 8.50, '/images/folder.jpg', 250, 'CAT002', 'WH003', 'A4文件夹');
 
 -- 插入出入库记录数据
-INSERT INTO xmut_stock_log (id, goods_id, warehouse_id, type, num, operator, create_time, transfer_id) VALUES
-('STOCK001', 'GOODS001', 'WH001', 1, 10, 'admin', '2024-01-15 09:30:00', NULL),
-('STOCK002', 'GOODS002', 'WH001', 1, 50, 'admin', '2024-01-16 10:15:00', NULL),
-('STOCK003', 'GOODS003', 'WH001', 1, 20, 'admin', '2024-01-17 11:45:00', NULL),
-('STOCK004', 'GOODS004', 'WH002', 1, 100, 'admin', '2024-01-18 14:20:00', NULL),
-('STOCK005', 'GOODS005', 'WH002', 1, 30, 'admin', '2024-01-19 15:10:00', NULL),
-('STOCK006', 'GOODS006', 'WH002', 1, 200, 'admin', '2024-01-20 16:05:00', NULL),
-('STOCK007', 'GOODS007', 'WH003', 1, 15, 'admin', '2024-01-21 09:00:00', NULL),
-('STOCK008', 'GOODS008', 'WH003', 1, 80, 'admin', '2024-01-22 10:30:00', NULL),
-('STOCK009', 'GOODS001', 'WH001', 2, 2, 'user001', '2024-01-23 13:45:00', NULL),  -- 出库记录
-('STOCK010', 'GOODS004', 'WH002', 2, 10, 'user002', '2024-01-24 14:30:00', NULL);  -- 出库记录
+INSERT INTO xmut_stock_log (id, goods_id, warehouse_id, type, num, operator, create_time, transfer_id, remark) VALUES
+('STOCK001', 'GOODS001', 'WH001', 1, 10, 'admin', '2024-01-15 09:30:00', NULL, '采购入库'),
+('STOCK002', 'GOODS002', 'WH001', 1, 50, 'admin', '2024-01-16 10:15:00', NULL, '补充库存'),
+('STOCK003', 'GOODS003', 'WH001', 1, 20, 'admin', '2024-01-17 11:45:00', NULL, '日常进货'),
+('STOCK004', 'GOODS004', 'WH002', 1, 100, 'admin', '2024-01-18 14:20:00', NULL, '办公用品采购'),
+('STOCK005', 'GOODS005', 'WH002', 1, 30, 'admin', '2024-01-19 15:10:00', NULL, '员工福利用品'),
+('STOCK006', 'GOODS006', 'WH002', 1, 200, 'admin', '2024-01-20 16:05:00', NULL, '会议用水'),
+('STOCK007', 'GOODS007', 'WH003', 1, 15, 'admin', '2024-01-21 09:00:00', NULL, '新学期教材入库'),
+('STOCK008', 'GOODS008', 'WH003', 1, 80, 'admin', '2024-01-22 10:30:00', NULL, '办公用品入库'),
+('STOCK009', 'GOODS001', 'WH001', 2, 2, 'user001', '2024-01-23 13:45:00', NULL, '销售出库'),  -- 出库记录
+('STOCK010', 'GOODS004', 'WH002', 2, 10, 'user002', '2024-01-24 14:30:00', NULL, '部门领用');  -- 出库记录
 
 
 -- 插入普通用户

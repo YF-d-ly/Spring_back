@@ -63,6 +63,15 @@ public class GoodsController {
 
     }
 
+    //根据仓库查货物
+    @GetMapping("select/{warehouseId}")
+    public Result<List<GoodNameVO>> getGoodsByWarehouse(@PathVariable String warehouseId) {
+        List<GoodNameVO> goodList = goodsService.getGoodsByWarehouse(warehouseId);
+        return Result.success(goodList, "根据仓库查货物成功");
+    }
+
+
+
     @GetMapping("/list")
     public Result<List<GoodNameVO>> getGoodsNameList() {
         List<Goods> goods = goodsService.list();
