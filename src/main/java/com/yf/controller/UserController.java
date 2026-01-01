@@ -28,7 +28,7 @@ public class UserController {
     @Operation(summary = "用户列表")
     public Result<IPage<User>> getUserList(
             @RequestParam(required = false) String account,
-            @RequestParam(required = false) String nickname,
+            @RequestParam(required = false) String username,
             @RequestParam(required = false) String roleId,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
@@ -38,7 +38,7 @@ public class UserController {
             return Result.error("权限不足，只有超级管理员可以访问此功能");
         }
         
-        IPage<User> userList = userService.getUserList(account, nickname, roleId, page, size);
+        IPage<User> userList = userService.getUserList(account, username, roleId, page, size);
         return Result.success(userList, "获取用户列表成功");
     }
 

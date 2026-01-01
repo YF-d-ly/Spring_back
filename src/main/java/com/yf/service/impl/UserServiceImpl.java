@@ -192,13 +192,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public IPage<User> getUserList(String account, String nickname, String roleId, Integer page, Integer size) {
+    public IPage<User> getUserList(String account, String username, String roleId, Integer page, Integer size) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         if (account != null && !account.isEmpty()) {
             queryWrapper.like("username", account);
         }
-        if (nickname != null && !nickname.isEmpty()) {
-            queryWrapper.like("nickname", nickname);
+        if (username != null && !username.isEmpty()) {
+            queryWrapper.like("username", username);
         }
         if (roleId != null && !roleId.isEmpty()) {
             queryWrapper.eq("role_id", roleId);
