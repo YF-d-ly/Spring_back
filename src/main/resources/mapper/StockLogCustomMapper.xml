@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yf.mapper.StockLogCustomMapper">
+
+    <select id="selectTransferLogs" resultType="com.yf.entity.vo.TransferVO">
+        SELECT
+            s1.goods_id AS goodsId,
+            g.name AS goodsName,
+            s1.transfer_id AS transferId,
+            s1.remark,
+            -- 出库信息
+            w1.name AS outboundWarehouseName,
+            s1.warehouse_id AS sourceWarehouseId,
+            s1.num AS outboundNum,
+            s1.operator AS outboundOperator,
+            s1.create_time AS outboundTime,
+            -- 入库信息
+            w2.name AS inboundWarehouseName,
+            s2.warehouse_id AS targetWarehouseId,
+            s2.num AS inboundNum,
+            s2.operator AS inboundOperator,
+            s2.create_time AS inboundTime
+        FROM xmut_stock_log s1
+        JOIN xmut_stock_log s2 ON s1.transfer_id = s2.transfer_id AND s1.type = 2 AND s2.type = 1
+        LEFT JOIN xmut_goods g ON s1.goods_id = g.id
+        LEFT JOIN xmut_warehouse w1 ON s1.warehouse_id = w1.id
+        LEFT JOIN xmut_warehouse w2 ON s2.warehouse_id = w2.id
+        WHERE s1.transfer_id IS NOT NULL
+    </select>
+
+    <select id="selectTop10GoodsByInOut" resultType="com.yf.entity.vo.GoodsRankVO">
+        SELECT
+            s.goods_id AS goodsId,
+            g.name AS goodsName,
+            COALESCE(SUM(CASE WHEN s.type = 1 THEN s.num ELSE 0 END), 0) AS inboundTotal,
+            COALESCE(SUM(CASE WHEN s.type = 2 THEN s.num ELSE 0 END), 0) AS outboundTotal,
+            COALESCE(SUM(s.num), 0) AS totalInOut,
+            MAX(s.create_time) AS lastOperationTime
+        FROM xmut_stock_log s
+        LEFT JOIN xmut_goods g ON s.goods_id = g.id
+        GROUP BY s.goods_id, g.name
+        ORDER BY totalInOut DESC
+        LIMIT 10
+    </select>
+    
+    <select id="selectTop10GoodsByInOutWithDate" resultType="com.yf.entity.vo.GoodsRankVO">
+        SELECT
+            s.goods_id AS goodsId,
+            g.name AS goodsName,
+            COALESCE(SUM(CASE WHEN s.type = 1 THEN s.num ELSE 0 END), 0) AS inboundTotal,
+            COALESCE(SUM(CASE WHEN s.type = 2 THEN s.num ELSE 0 END), 0) AS outboundTotal,
+            COALESCE(SUM(s.num), 0) AS totalInOut,
+            MAX(s.create_time) AS lastOperationTime
+        FROM xmut_stock_log s
+        LEFT JOIN xmut_goods g ON s.goods_id = g.id
+        <if test="startDate != null and startDate != ''">
+            WHERE DATE(s.create_time) >= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            <if test="startDate != null and startDate != ''">
+                AND
+            </if>
+            <if test="startDate == null or startDate == ''">
+                WHERE
+            </if>
+            DATE(s.create_time) &lt;= STR_TO_DATE(#{endDate}, '%Y-%m-%d')
+        </if>
+        GROUP BY s.goods_id, g.name
+        ORDER BY totalInOut DESC
+        LIMIT 10
+    </select>
+    
+    <select id="selectTop10WarehouseByInOut" resultType="com.yf.entity.vo.WarehouseGoodsRankVO">
+        SELECT
+            s.warehouse_id AS warehouseId,
+            w.name AS warehouseName,
+            COALESCE(SUM(CASE WHEN s.type = 1 THEN s.num ELSE 0 END), 0) AS inboundTotal,
+            COALESCE(SUM(CASE WHEN s.type = 2 THEN s.num ELSE 0 END), 0) AS outboundTotal,
+            COALESCE(SUM(s.num), 0) AS totalInOut,
+            MAX(s.create_time) AS lastOperationTime
+        FROM xmut_stock_log s
+        LEFT JOIN xmut_warehouse w ON s.warehouse_id = w.id
+        GROUP BY s.warehouse_id, w.name
+        ORDER BY totalInOut DESC
+        LIMIT 10
+    </select>
+    
+    <select id="selectTop10WarehouseByInOutWithDate" resultType="com.yf.entity.vo.WarehouseGoodsRankVO">
+        SELECT
+            s.warehouse_id AS warehouseId,
+            w.name AS warehouseName,
+            COALESCE(SUM(CASE WHEN s.type = 1 THEN s.num ELSE 0 END), 0) AS inboundTotal,
+            COALESCE(SUM(CASE WHEN s.type = 2 THEN s.num ELSE 0 END), 0) AS outboundTotal,
+            COALESCE(SUM(s.num), 0) AS totalInOut,
+            MAX(s.create_time) AS lastOperationTime
+        FROM xmut_stock_log s
+        LEFT JOIN xmut_warehouse w ON s.warehouse_id = w.id
+        <if test="startDate != null and startDate != ''">
+            WHERE DATE(s.create_time) >= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            <if test="startDate != null and startDate != ''">
+                AND
+            </if>
+            <if test="startDate == null or startDate == ''">
+                WHERE
+            </if>
+            DATE(s.create_time) &lt;= STR_TO_DATE(#{endDate}, '%Y-%m-%d')
+        </if>
+        GROUP BY s.warehouse_id, w.name
+        ORDER BY totalInOut DESC
+        LIMIT 10
+    </select>
+    
+    <select id="selectWarehouseGoodsInventory" resultType="com.yf.entity.vo.WarehouseGoodsInventoryVO">
+        SELECT
+            g.id AS goodsId,
+            g.name AS goodsName,
+            g.stock,
+            g.price,
+            c.name AS categoryName,
+            COALESCE(SUM(CASE WHEN s.type = 1 THEN s.num ELSE 0 END), 0) AS inboundNum,
+            COALESCE(SUM(CASE WHEN s.type = 2 THEN s.num ELSE 0 END), 0) AS outboundNum
+        FROM xmut_goods g
+        LEFT JOIN xmut_category c ON g.category_id = c.id
+        LEFT JOIN xmut_stock_log s ON g.id = s.goods_id AND s.warehouse_id = #{warehouseId}
+        WHERE g.warehouse_id = #{warehouseId}
+        <if test="startDate != null and startDate != ''">
+            AND DATE(s.create_time) >= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE(s.create_time) &lt;= STR_TO_DATE(#{endDate}, '%Y-%m-%d')
+        </if>
+        GROUP BY g.id, g.name, g.stock, g.price, c.name
+        ORDER BY g.stock DESC
+        LIMIT 10
+    </select>
+    
+    <select id="selectWarehouseDailyTrend" resultType="com.yf.entity.vo.WarehouseDailyTrendVO">
+        SELECT
+            s.warehouse_id AS warehouseId,
+            w.name AS warehouseName,
+            DATE(s.create_time) AS date,
+            COALESCE(SUM(CASE WHEN s.type = 1 THEN s.num ELSE 0 END), 0) AS inboundNum,
+            COALESCE(SUM(CASE WHEN s.type = 2 THEN s.num ELSE 0 END), 0) AS outboundNum,
+            COALESCE(SUM(CASE WHEN s.type = 1 THEN s.num ELSE -s.num END), 0) AS netChange
+        FROM xmut_stock_log s
+        LEFT JOIN xmut_warehouse w ON s.warehouse_id = w.id
+        WHERE s.warehouse_id = #{warehouseId}
+        <if test="startDate != null and startDate != ''">
+            AND DATE(s.create_time) >= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE(s.create_time) &lt;= STR_TO_DATE(#{endDate}, '%Y-%m-%d')
+        </if>
+        GROUP BY s.warehouse_id, w.name, DATE(s.create_time)
+        ORDER BY date DESC
+    </select>
+    
+    <select id="selectWarehouseGoodsInventoryWithDate" resultType="com.yf.entity.vo.WarehouseGoodsInventoryVO">
+        SELECT
+            g.id AS goodsId,
+            g.name AS goodsName,
+            g.stock,
+            g.price,
+            c.name AS categoryName,
+            COALESCE(SUM(CASE WHEN s.type = 1 THEN s.num ELSE 0 END), 0) AS inboundNum,
+            COALESCE(SUM(CASE WHEN s.type = 2 THEN s.num ELSE 0 END), 0) AS outboundNum
+        FROM xmut_goods g
+        LEFT JOIN xmut_category c ON g.category_id = c.id
+        LEFT JOIN xmut_stock_log s ON g.id = s.goods_id AND s.warehouse_id = #{warehouseId}
+        WHERE g.warehouse_id = #{warehouseId}
+        <if test="startDate != null and startDate != ''">
+            AND DATE(s.create_time) >= STR_TO_DATE(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE(s.create_time) &lt;= STR_TO_DATE(#{endDate}, '%Y-%m-%d')
+        </if>
+        GROUP BY g.id, g.name, g.stock, g.price, c.name
+        ORDER BY g.stock DESC
+    </select>
+
+</mapper>

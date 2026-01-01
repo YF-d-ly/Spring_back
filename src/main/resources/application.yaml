@@ -1,4 +1,3 @@
-
 server:
   port: 8080
 
@@ -10,14 +9,31 @@ spring:
     username: root
     password: 123456
 
-
-
 mybatis-plus:
   mapper-locations:  classpath:mapper/*.xml
   type-aliases-package: com.yf.entity
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: deleted # 全局逻辑删除字段名
+      logic-delete-value: 1 # 逻辑已删除值
+      logic-not-delete-value: 0 # 逻辑未删除值
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: method
+  default-flat-param-object: true
+  
+  
+jwt:
+  secret: xmut_warehouse_secret_key_change_me
+  expiration: 86400  # 24小时
 
 knife4j:
   enable: true
@@ -26,4 +42,3 @@ knife4j:
     swagger-model-name: 实体类列表
   # 开启生产环境屏蔽（可选）
   production: false
-

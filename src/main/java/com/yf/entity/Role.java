@@ -15,34 +15,28 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("xmut_warehouse")
-@Schema(description = "仓库信息")
-public class Warehouse {
+@TableName("xmut_role")
+@Schema(description = "角色实体")
+public class Role {
     @TableId(type = IdType.ASSIGN_ID)
-    @Schema(description = "仓库ID")
+    @Schema(description = "角色ID")
     private String id;
     
-    @Schema(description = "仓库名称")
-    private String name;
+    @Schema(description = "角色名称")
+    private String roleName;
     
-    @Schema(description = "仓库地址")
-    private String address;
-
-    @Schema(description = "仓库描述")
+    @Schema(description = "角色代码")
+    private String roleCode;
+    
+    @Schema(description = "角色描述")
     private String description;
-
-    @Schema(description = "联系人")
-    private String contact;
     
-    @Schema(description = "联系电话")
-    private String phone;
-    
-    @Schema(description = "状态")
+    @Schema(description = "状态：0=禁用，1=启用")
     private Integer status;
     
     @Schema(description = "创建时间")
     private LocalDateTime createdAt;
-
+    
     @Schema(description = "更新时间")
     private LocalDateTime updatedAt;
 }

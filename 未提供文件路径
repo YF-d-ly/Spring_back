@@ -1,0 +1,6 @@
+-- 需要在数据库中执行的SQL语句，用于插入新的菜单项
+INSERT INTO xmut_menu (id, menu_name, menu_path, icon, parent_id, sort_order, created_at) VALUES 
+('MENU_07', '货品类别管理', '/category/list', 'category', NULL, 6, NOW()),
+('MENU_08', '货品信息管理', '/goods/list', 'goods', NULL, 7, NOW()),
+('MENU_09', '出入库管理', '/stock/log', 'history', NULL, 8, NOW()),
+('MENU_10', '调货管理', '/transfer/list', 'transfer', NULL, 9, NOW());

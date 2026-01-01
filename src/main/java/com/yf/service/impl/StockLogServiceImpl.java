@@ -12,8 +12,12 @@ import com.yf.entity.dto.InboundDTO;
 import com.yf.entity.dto.OutboundDTO;
 import com.yf.entity.dto.StockLogQueryDTO;
 import com.yf.entity.dto.TransferDTO;
+import com.yf.entity.vo.GoodsRankVO;
 import com.yf.entity.vo.StockLogVO;
 import com.yf.entity.vo.TransferVO;
+import com.yf.entity.vo.WarehouseDailyTrendVO;
+import com.yf.entity.vo.WarehouseGoodsRankVO;
+import com.yf.entity.vo.WarehouseGoodsInventoryVO;
 import com.yf.mapper.StockLogCustomMapper;
 import com.yf.mapper.StockLogMapper;
 import com.yf.service.GoodsService;
@@ -25,9 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
 import java.util.function.Function;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -130,8 +133,6 @@ public class StockLogServiceImpl extends ServiceImpl<StockLogMapper, StockLog> i
                 transferDTO.getNum());
     }
 
-
-
     @Override
     public PageResult<StockLogVO> pageQuery(StockLogQueryDTO queryDTO) {
             // 创建分页对象
@@ -225,6 +226,90 @@ public class StockLogServiceImpl extends ServiceImpl<StockLogMapper, StockLog> i
             );
         }
 
-
-
+    @Override
+    public List<GoodsRankVO> getTop10GoodsByInOut() {
+        // 使用自定义Mapper查询货物进出排行（不指定日期范围）
+        return stockLogCustomMapper.selectTop10GoodsByInOut();
     }
+
+    @Override
+    public List<WarehouseGoodsRankVO> getTop10WarehouseByInOut() {
+        // 使用自定义Mapper查询仓库进出货物排行（不指定日期范围）
+        return stockLogCustomMapper.selectTop10WarehouseByInOut();
+    }
+
+    @Override
+    public List<WarehouseGoodsInventoryVO> getWarehouseGoodsInventory(String warehouseId) {
+        // 校验仓库ID参数
+        if (warehouseId == null || warehouseId.isEmpty()) {
+            throw new IllegalArgumentException("仓库ID不能为空");
+        }
+        // 使用自定义Mapper查询指定仓库内货物排行（不指定日期范围）
+        return stockLogCustomMapper.selectWarehouseGoodsInventory(warehouseId);
+    }
+
+    @Override
+    public List<WarehouseGoodsInventoryVO> getWarehouseGoodsInventory(String warehouseId, String startDate, String endDate) {
+        // 校验日期参数，确保开始日期不大于结束日期
+        if (startDate != null && !startDate.isEmpty() && 
+            endDate != null && !endDate.isEmpty()) {
+            if (startDate.compareTo(endDate) > 0) {
+                // 如果开始日期大于结束日期，抛出异常
+                throw new IllegalArgumentException("开始日期不能大于结束日期");
+            }
+        }
+        
+        // 使用自定义Mapper查询指定仓库内货物排行（带日期范围）
+        return stockLogCustomMapper.selectWarehouseGoodsInventoryWithDate(warehouseId, startDate, endDate);
+    }
+
+    @Override
+    public List<GoodsRankVO> getTop10GoodsByInOut(String startDate, String endDate) {
+        // 校验日期参数，确保开始日期不大于结束日期
+        if (startDate != null && !startDate.isEmpty() && 
+            endDate != null && !endDate.isEmpty()) {
+            if (startDate.compareTo(endDate) > 0) {
+                // 如果开始日期大于结束日期，抛出异常
+                throw new IllegalArgumentException("开始日期不能大于结束日期");
+            }
+        }
+        
+        // 使用自定义Mapper查询货物进出排行（带日期范围）
+        return stockLogCustomMapper.selectTop10GoodsByInOutWithDate(startDate, endDate);
+    }
+
+    @Override
+    public List<WarehouseGoodsRankVO> getTop10WarehouseByInOut(String startDate, String endDate) {
+        // 校验日期参数，确保开始日期不大于结束日期
+        if (startDate != null && !startDate.isEmpty() && 
+            endDate != null && !endDate.isEmpty()) {
+            if (startDate.compareTo(endDate) > 0) {
+                // 如果开始日期大于结束日期，抛出异常
+                throw new IllegalArgumentException("开始日期不能大于结束日期");
+            }
+        }
+        
+        // 使用自定义Mapper查询仓库进出货物排行（带日期范围）
+        return stockLogCustomMapper.selectTop10WarehouseByInOutWithDate(startDate, endDate);
+    }
+
+    @Override
+    public List<WarehouseDailyTrendVO> getWarehouseDailyTrend(String warehouseId, String startDate, String endDate) {
+        // 校验仓库ID参数
+        if (warehouseId == null || warehouseId.isEmpty()) {
+            throw new IllegalArgumentException("仓库ID不能为空");
+        }
+        
+        // 校验日期参数，确保开始日期不大于结束日期
+        if (startDate != null && !startDate.isEmpty() && 
+            endDate != null && !endDate.isEmpty()) {
+            if (startDate.compareTo(endDate) > 0) {
+                // 如果开始日期大于结束日期，抛出异常
+                throw new IllegalArgumentException("开始日期不能大于结束日期");
+            }
+        }
+        
+        // 使用自定义Mapper查询仓库每日进出趋势
+        return stockLogCustomMapper.selectWarehouseDailyTrend(warehouseId, startDate, endDate);
+    }
+}

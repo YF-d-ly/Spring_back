@@ -1,6 +1,7 @@
 package com.yf.controller;
 
 import com.yf.dto.LoginDTO;
+import com.yf.entity.vo.UserPermissionVO;
 import com.yf.service.UserService;
 import com.yf.util.Result;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/auth")
 @Tag(name = "登录管理", description = "用户登录相关接口")
 @Slf4j
 public class LoginController {
@@ -26,10 +27,10 @@ public class LoginController {
      */
     @PostMapping("/login")
     @Operation(summary = "用户登录")
-    public Result<String> login(@RequestBody LoginDTO loginDTO) {
+    public Result<UserPermissionVO> login(@RequestBody LoginDTO loginDTO) {
         log.info("用户登录：{}", loginDTO);
-        String token = userService.login(loginDTO);
-        return Result.success(token, "用户登录成功");
+        UserPermissionVO userPermissionVO = userService.login(loginDTO);
+        return Result.success(userPermissionVO, "用户登录成功");
     }
 
     /**
@@ -40,7 +41,14 @@ public class LoginController {
     @PostMapping("/logout")
     public Result<String> logout(@RequestHeader("Authorization") String token) {
         log.info("用户退出");
-        userService.logout(token);
+        
+        // 去除 "Bearer " 前缀（如果存在）
+        String actualToken = token;
+        if (token != null && token.startsWith("Bearer ")) {
+            actualToken = token.substring(7);
+        }
+        
+        userService.logout(actualToken);
         return Result.success("用户退出成功");
     }
 }

@@ -18,4 +18,7 @@ public class LoginVO {
     @Schema(defaultValue = "jwt令牌")
     private String token;
 
+    @Schema(defaultValue = "权限")
+    private  int role;
+
 }

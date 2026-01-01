@@ -7,6 +7,8 @@ import cn.hutool.jwt.JWTUtil;
 import cn.hutool.jwt.JWTValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -23,10 +25,15 @@ public class HutoolJwtUtil {
     @Value("${jwt.expiration:86400}")
     private Integer expiration; // 过期时间，秒
 
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    private static final String BLACKLIST_PREFIX = "jwt:blacklist:";
+
     /**
      * 生成JWT令牌（最简方式）
      */
-    public String generateToken(Integer userId, String username) {
+    public String generateToken(String userId, String username) {
         Map<String, Object> payload = new HashMap<>();
 
         // 只放必要的信息
@@ -39,10 +46,15 @@ public class HutoolJwtUtil {
     }
 
     /**
-     * 验证JWT令牌（最简方式）
+     * 验证JWT令牌
      */
     public boolean validateToken(String token) {
         if (token == null || token.trim().isEmpty()) {
+            return false;
+        }
+
+        // 检查JWT是否在黑名单中
+        if (isTokenBlacklisted(token)) {
             return false;
         }
 
@@ -63,12 +75,45 @@ public class HutoolJwtUtil {
     }
 
     /**
+     * 将JWT加入黑名单
+     */
+    public void blacklistToken(String token, long expirationTime) {
+        try {
+            // 将token加入黑名单，设置过期时间为JWT的剩余过期时间
+            redisTemplate.opsForValue().set(BLACKLIST_PREFIX + token, "1", expirationTime, java.util.concurrent.TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            log.warn("添加JWT到黑名单失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 检查JWT是否在黑名单中
+     */
+    private boolean isTokenBlacklisted(String token) {
+        try {
+            String result = redisTemplate.opsForValue().get(BLACKLIST_PREFIX + token);
+            return "1".equals(result);
+        } catch (Exception e) {
+            log.warn("检查JWT黑名单失败: {}", e.getMessage());
+            return false; // 如果无法检查黑名单，默认为不在黑名单中
+        }
+    }
+
+    /**
      * 解析JWT中的用户ID
      */
-    public Integer getUserId(String token) {
+    public String getUserId(String token) {
         try {
             JWT jwt = JWTUtil.parseToken(token);
-            return jwt.getPayloads().getInt("userId");
+            Object userIdObj = jwt.getPayloads().get("userId");
+            if (userIdObj instanceof String) {
+                return (String) userIdObj;
+            } else if (userIdObj instanceof Integer) {
+                return String.valueOf((Integer) userIdObj);
+            } else if (userIdObj instanceof Long) {
+                return String.valueOf((Long) userIdObj);
+            }
+            return null;
         } catch (Exception e) {
             return null;
         }
