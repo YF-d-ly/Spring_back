@@ -24,6 +24,6 @@ public interface MenuMapper extends BaseMapper<Menu> {
      */
     @Select("SELECT m.* FROM xmut_menu m " +
             "LEFT JOIN xmut_role_menu rm ON m.id = rm.menu_id " +
-            "WHERE rm.roleId = #{roleId}")
+            "WHERE rm.role_id = #{roleId}")
     List<Menu> getMenusByRoleId(@Param("roleId") String roleId);
 }

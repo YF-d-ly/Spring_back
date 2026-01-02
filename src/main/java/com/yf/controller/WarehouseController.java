@@ -1,13 +1,10 @@
 package com.yf.controller;
 
-import com.yf.entity.Category;
 import com.yf.entity.Warehouse;
 import com.yf.entity.dto.WarehouseDTO;
-import com.yf.entity.dto.WarehouseQueryDTO;
-import com.yf.entity.vo.CategoryVO;
-import com.yf.entity.vo.GoodVO;
-import com.yf.entity.vo.WarehouseNameVO;
-import com.yf.entity.vo.WarehouseVO;
+import com.yf.entity.dto.page.WarehouseQueryDTO;
+import com.yf.entity.vo.select.WarehouseNameVO;
+import com.yf.entity.vo.PageResult.WarehouseVO;
 
 import com.yf.service.WarehouseService;
 import com.yf.util.PageResult;
@@ -53,11 +50,6 @@ public class WarehouseController {
         return Result.success(warehouseList, "分页获取仓库成功");
 
     }
-
-
-
-
-
 
     // 添加仓库
     @PostMapping

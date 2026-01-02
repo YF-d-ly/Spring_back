@@ -1,7 +1,7 @@
 package com.yf.controller;
 
 import com.yf.entity.Category;
-import com.yf.entity.vo.CategoryVO;
+import com.yf.entity.vo.select.CategoryVO;
 import com.yf.service.CategoryService;
 import com.yf.util.Result;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +22,7 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    // 获取货品类别列表 - 修复版本
+    // 获取货品类别列表
     @GetMapping("/names")
     @Operation(summary = "获取类别名称列表", description = "获取所有类别的ID和名称")
     public Result<List<CategoryVO>> getCategoryNames() {

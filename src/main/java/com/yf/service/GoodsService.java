@@ -2,9 +2,9 @@ package com.yf.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yf.entity.Goods;
-import com.yf.entity.dto.GoodsPageQueryDTO;
-import com.yf.entity.vo.GoodNameVO;
-import com.yf.entity.vo.GoodVO;
+import com.yf.entity.dto.page.GoodsPageQueryDTO;
+import com.yf.entity.vo.select.GoodNameVO;
+import com.yf.entity.vo.PageResult.GoodVO;
 
 import com.yf.util.PageResult;
 import org.springframework.web.multipart.MultipartFile;

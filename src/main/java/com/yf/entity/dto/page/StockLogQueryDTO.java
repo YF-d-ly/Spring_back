@@ -1,4 +1,4 @@
-package com.yf.entity.dto;
+package com.yf.entity.dto.page;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;

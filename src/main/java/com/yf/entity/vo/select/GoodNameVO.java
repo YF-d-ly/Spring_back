@@ -1,6 +1,5 @@
-package com.yf.entity.vo;
+package com.yf.entity.vo.select;
 
-import com.fasterxml.jackson.core.JsonToken;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("xmut_company_info")
+@TableName("xmut_company")
 @Schema(description = "企业信息")
 public class CompanyInfo {
     @TableId(type = IdType.ASSIGN_ID)

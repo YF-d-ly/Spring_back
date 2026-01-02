@@ -1,13 +1,12 @@
 package com.yf.controller;
 
-import com.yf.entity.StockLog;
 import com.yf.entity.dto.InboundDTO;
 import com.yf.entity.dto.OutboundDTO;
-import com.yf.entity.dto.StockLogQueryDTO;
+
 import com.yf.entity.dto.TransferDTO;
-import com.yf.entity.vo.GoodVO;
-import com.yf.entity.vo.StockLogVO;
-import com.yf.entity.vo.TransferVO;
+import com.yf.entity.dto.page.StockLogQueryDTO;
+import com.yf.entity.vo.PageResult.StockLogVO;
+import com.yf.entity.vo.PageResult.TransferVO;
 import com.yf.service.StockLogService;
 import com.yf.util.PageResult;
 import com.yf.util.Result;

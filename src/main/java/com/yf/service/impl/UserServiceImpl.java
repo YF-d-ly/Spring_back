@@ -1,8 +1,5 @@
 package com.yf.service.impl;
 
-import cn.hutool.core.date.DateField;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -14,12 +11,11 @@ import com.yf.constant.RedisConstants;
 import com.yf.entity.Menu;
 import com.yf.entity.Role;
 import com.yf.entity.User;
-import com.yf.entity.UserMenu;
-import com.yf.entity.UserWarehouse;
 import com.yf.entity.Warehouse;
+import com.yf.entity.dto.LoginDTO;
 import com.yf.entity.dto.UserDTO;
-import com.yf.entity.vo.UserPermissionVO;
-import com.yf.enums.UserRoleEnum;
+import com.yf.entity.dto.page.UserQueryDTO;
+import com.yf.entity.vo.Login.UserPermissionVO;
 import com.yf.mapper.MenuMapper;
 import com.yf.mapper.RoleMapper;
 import com.yf.mapper.UserMapper;
@@ -27,9 +23,9 @@ import com.yf.mapper.UserMenuMapper;
 import com.yf.mapper.UserWarehouseMapper;
 import com.yf.mapper.WarehouseMapper;
 import com.yf.service.UserService;
-import com.yf.dto.LoginDTO;
+
 import com.yf.util.HutoolJwtUtil;
-import org.springframework.beans.BeanUtils;
+import com.yf.util.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -45,19 +41,19 @@ import java.util.Map;
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
-    
+
     @Autowired
     private UserMapper userMapper;
-    
+
     @Autowired
     private MenuMapper menuMapper;
-    
+
     @Autowired
     private WarehouseMapper warehouseMapper;
-    
+
     @Autowired
     private UserMenuMapper userMenuMapper;
-    
+
     @Autowired
     private UserWarehouseMapper userWarehouseMapper;
 
@@ -89,13 +85,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 使用HutoolJwtUtil生成JWT
         String token = hutoolJwtUtil.generateToken(user.getId(), user.getUsername());
-        
+
         // 创建用户DTO
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
         userDTO.setUsername(user.getUsername());
         userDTO.setRoleId(user.getRoleId()); // 设置用户角色ID
-        
+
         // 将用户信息存储到Redis，以用户ID作为key
         String key = RedisConstants.LOGIN_USER_KEY + user.getId();
         // 将JWT token存储到Redis中，用于会话管理
@@ -107,14 +103,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         redisTemplate.expire(key, Duration.ofSeconds(expiration));
 
         log.info("用户登录成功: {}", user.getUsername());
-        
+
         // 获取用户角色
         Role role = roleMapper.selectById(user.getRoleId());
         boolean isSuperAdmin = role != null && "SUPER_ADMIN".equals(role.getRoleCode());
-        
+
         // 获取用户菜单权限
         List<Menu> menus = getMenuListByUserId(user.getId(), isSuperAdmin);
-        
+
         // 获取用户仓库权限
         List<Warehouse> warehouses = getWarehouseListByUserId(user.getId(), isSuperAdmin);
 
@@ -167,15 +163,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             JWT jwt = JWTUtil.parseToken(token);
             String userId = jwt.getPayloads().getStr("userId");
             String key = RedisConstants.LOGIN_USER_KEY + userId;
-            
+
             // 验证Redis中存储的token是否与当前token一致
             Map<Object, Object> userMap = redisTemplate.opsForHash().entries(key);
             String storedToken = (String) userMap.get("token");
-            
+
             if (storedToken != null && storedToken.equals(token)) {
                 redisTemplate.delete(key);
             }
-            
+
             // 同时将JWT加入黑名单，使其在过期前失效
             // 解析JWT获取过期时间
             Long expiresAt = jwt.getPayloads().getLong("exp");
@@ -204,9 +200,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             queryWrapper.eq("role_id", roleId);
         }
         queryWrapper.orderByDesc("created_at");
-        
+
         Page<User> userPage = new Page<>(page, size);
         return userMapper.selectPage(userPage, queryWrapper);
+    }
+
+    @Override
+    public PageResult<User> query(UserQueryDTO userQueryDTO) {
+        return null;
     }
 
     @Override

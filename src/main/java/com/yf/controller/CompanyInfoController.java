@@ -24,7 +24,7 @@ public class CompanyInfoController {
     /**
      * 获取企业信息
      */
-    @GetMapping
+    @GetMapping("/info")
     @Operation(summary = "获取企业信息")
     public Result<CompanyInfo> getCompanyInfo() {
         CompanyInfo companyInfo = companyInfoService.getCompanyInfo();
@@ -34,7 +34,7 @@ public class CompanyInfoController {
     /**
      * 更新企业信息（仅超级管理员可访问）
      */
-    @PutMapping
+    @PutMapping("/update")
     @Operation(summary = "更新企业信息")
     public Result<Boolean> updateCompanyInfo(@RequestBody CompanyInfo companyInfo) {
         // 检查当前用户是否为超级管理员
@@ -49,7 +49,7 @@ public class CompanyInfoController {
     /**
      * 添加企业信息（仅超级管理员可访问，用于初始化）
      */
-    @PostMapping
+    @PostMapping("/add")
     @Operation(summary = "添加企业信息")
     public Result<Boolean> addCompanyInfo(@RequestBody CompanyInfo companyInfo) {
         // 检查当前用户是否为超级管理员

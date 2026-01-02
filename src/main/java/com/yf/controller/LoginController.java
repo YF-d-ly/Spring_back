@@ -1,7 +1,8 @@
 package com.yf.controller;
 
-import com.yf.dto.LoginDTO;
-import com.yf.entity.vo.UserPermissionVO;
+
+import com.yf.entity.dto.LoginDTO;
+import com.yf.entity.vo.Login.UserPermissionVO;
 import com.yf.service.UserService;
 import com.yf.util.Result;
 import io.swagger.v3.oas.annotations.Operation;

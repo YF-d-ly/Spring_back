@@ -1,4 +1,4 @@
-package com.yf.entity.dto;
+package com.yf.entity.dto.page;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

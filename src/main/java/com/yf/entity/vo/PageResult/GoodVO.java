@@ -1,4 +1,4 @@
-package com.yf.entity.vo;
+package com.yf.entity.vo.PageResult;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

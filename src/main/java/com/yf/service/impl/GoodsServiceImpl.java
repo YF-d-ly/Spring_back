@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yf.entity.Category;
 import com.yf.entity.Goods;
 import com.yf.entity.Warehouse;
-import com.yf.entity.dto.GoodsPageQueryDTO;
-import com.yf.entity.vo.GoodNameVO;
-import com.yf.entity.vo.GoodVO;
+import com.yf.entity.dto.page.GoodsPageQueryDTO;
+import com.yf.entity.vo.select.GoodNameVO;
+import com.yf.entity.vo.PageResult.GoodVO;
 
 import com.yf.mapper.GoodsMapper;
 import com.yf.service.CategoryService;

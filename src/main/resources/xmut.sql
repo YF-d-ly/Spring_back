@@ -78,6 +78,7 @@ CREATE TABLE xmut_user (
                            email VARCHAR(50) COMMENT '邮箱',
                            sex TINYINT DEFAULT 2 COMMENT '性别：0-女，1-男，2-保密',
                            role_id VARCHAR(45) NOT NULL COMMENT '角色ID，关联xmut_role表',
+
                            status TINYINT NOT NULL DEFAULT 1 COMMENT '0=禁用，1=启用',
                            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -193,20 +194,13 @@ INSERT INTO xmut_role_menu (role_id, menu_id) VALUES
 ('ROLE_002', 'MENU_05'), -- 出入库管理
 ('ROLE_002', 'MENU_06'), -- 调货管理
 ('ROLE_002', 'MENU_07'), -- 企业报表
-('ROLE_002', 'MENU_08'), -- 仓库报表
+('ROLE_002', 'MENU_08'), -- 商品报表
+('ROLE_002', 'MENU_09'), -- 仓库列表
 ('ROLE_002', 'MENU_11'), -- 企业信息
-('ROLE_002', 'MENU_13'); -- 个人信息
+('ROLE_002', 'MENU_12'), -- 企业报表
+('ROLE_002', 'MENU_17'); -- 个人信息
 
--- 普通用户拥有基本操作菜单权限
-INSERT INTO xmut_role_menu (role_id, menu_id) VALUES
-('ROLE_003', 'MENU_01'), -- 首页
-('ROLE_003', 'MENU_02'), -- 仓库管理
-('ROLE_003', 'MENU_03'), -- 货品管理
-('ROLE_003', 'MENU_05'), -- 出入库管理
-('ROLE_003', 'MENU_06'), -- 调货管理
-('ROLE_003', 'MENU_07'), -- 企业报表
-('ROLE_003', 'MENU_08'), -- 仓库报表
-('ROLE_003', 'MENU_13'); -- 个人信息
+
 
 -- 插入默认超级管理员用户
 INSERT INTO xmut_user (id, username, nickname, password, role_id, status) VALUES 
@@ -261,7 +255,7 @@ INSERT INTO xmut_stock_log (id, goods_id, warehouse_id, type, num, operator, cre
 
 -- 插入普通用户
 INSERT INTO xmut_user (id, username, password, nickname, telephone, mobile, email, role_id, status) VALUES
-('USER001', 'user001', '$2a$10$DfTqWzQYvJZmKlMnOpQrS.OuXyZ1234567890', '张三', '0592-1111111', '13800138001', 'zhangsan@example.com', 'ROLE_002', 1),
+('USER001', 'user001', '123456', '张三', '0592-1111111', '13800138001', 'zhangsan@example.com', 'ROLE_002', 1),
 ('USER002', 'user002', '$2a$10$DfTqWzQYvJZmKlMnOpQrS.OuXyZ1234567890', '李四', '0592-2222222', '13800138002', 'lisi@example.com', 'ROLE_002', 1),
 ('USER003', 'user003', '$2a$10$DfTqWzQYvJZmKlMnOpQrS.OuXyZ1234567890', '王五', '0592-3333333', '13800138003', 'wangwu@example.com', 'ROLE_002', 1);
 

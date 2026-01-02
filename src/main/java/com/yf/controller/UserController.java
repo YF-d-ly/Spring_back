@@ -1,9 +1,13 @@
 package com.yf.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.yf.entity.Category;
 import com.yf.entity.User;
-import com.yf.enums.UserRoleEnum;
+import com.yf.entity.dto.page.UserQueryDTO;
+import com.yf.entity.vo.select.CategoryVO;
+import com.yf.entity.vo.select.UserNamesVO;
 import com.yf.service.UserService;
+import com.yf.util.PageResult;
 import com.yf.util.Result;
 import com.yf.util.UserHolder;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +15,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user")
@@ -40,6 +47,35 @@ public class UserController {
         
         IPage<User> userList = userService.getUserList(account, username, roleId, page, size);
         return Result.success(userList, "获取用户列表成功");
+    }
+
+    /**
+     * 获取用户姓名（用于权限分配界面）
+     */
+    @GetMapping("/names")
+    @Operation(summary = "获取用户列表")
+    public Result<List<UserNamesVO>> getUserName() {
+        List<User> userNames = userService.list();
+        log.info("用户列表：{}", userNames);
+        List<UserNamesVO> userNamesVOList = userNames.stream()
+                .map(user -> UserNamesVO.builder()
+                        .id(user.getId())
+                        .nickname(user.getNickname())
+                        .build())
+                .collect(Collectors.toList());
+
+        return Result.success(userNamesVOList, "获取用户列表成功");
+    }
+
+    /**
+     * 获取用户分页
+     */
+    @GetMapping("/Page" )
+    public Result<PageResult<User>> PageQury( ) {
+        PageResult<User> pageResult = userService.query(new UserQueryDTO());
+        return null;
+//        return Result.success(pageResult, "获取用户分页成功");
+        
     }
 
     /**

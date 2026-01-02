@@ -4,12 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.yf.entity.Goods;
 import com.yf.entity.Warehouse;
 import com.yf.entity.dto.WarehouseDTO;
-import com.yf.entity.dto.WarehouseQueryDTO;
-import com.yf.entity.vo.GoodVO;
-import com.yf.entity.vo.WarehouseVO;
+import com.yf.entity.dto.page.WarehouseQueryDTO;
+import com.yf.entity.vo.PageResult.WarehouseVO;
 import com.yf.mapper.GoodsMapper;
 import com.yf.mapper.WarehouseMapper;
 import com.yf.service.WarehouseService;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse> implements WarehouseService {

@@ -64,6 +64,8 @@ public class PermissionController {
         return Result.success(result, result ? "分配仓库权限成功" : "分配仓库权限失败");
     }
 
+
+
     /**
      * 获取用户拥有的菜单权限
      */
@@ -103,45 +105,61 @@ public class PermissionController {
     }
 
     /**
-     * 获取当前登录用户的权限（菜单和仓库）
+     * 获取角色列表（用于权限分配界面）
      */
-    @GetMapping("/my-permissions")
-    @Operation(summary = "获取当前用户权限")
-    public Result<Object> getCurrentUserPermissions() {
-        String userId = UserHolder.getUser().getId();
-        String userRoleId = UserHolder.getUser().getRoleId();
-        
-        // 检查是否为超级管理员
-        boolean isSuperAdmin = userRoleId != null && userRoleId.equals("ROLE_001");
-        
-        if (isSuperAdmin) {
-            // 超级管理员拥有所有权限
-            List<Menu> allMenus = permissionService.getAllMenus();
-            List<Warehouse> allWarehouses = permissionService.getAllWarehouses();
-            
-            // 构建权限对象
-            var permissions = new Object() {
-                public List<Menu> menus = allMenus;
-                public List<Warehouse> warehouses = allWarehouses;
-                public Boolean isSuperAdmin = true;
-            };
-            
-            return Result.success(permissions, "获取当前用户权限成功");
-        } else {
-            // 普通用户只拥有分配的权限
-            List<Menu> userMenus = permissionService.getUserMenus(userId);
-            List<Warehouse> userWarehouses = permissionService.getUserWarehouses(userId);
-            
-            // 构建权限对象
-            var permissions = new Object() {
-                public List<Menu> menus = userMenus;
-                public List<Warehouse> warehouses = userWarehouses;
-                public Boolean isSuperAdmin = false;
-            };
-            
-            return Result.success(permissions, "获取当前用户权限成功");
+    @GetMapping("/roles")
+    @Operation(summary = "获取角色列表")
+    public Result<List<Role>> getRoleList() {
+        // 检查当前用户是否为超级管理员
+        if (UserHolder.getUser().getRoleId() == null || !UserHolder.getUser().getRoleId().equals("ROLE_001")) {
+            return Result.error("权限不足，只有超级管理员可以访问此功能");
         }
+
+        List<Role> roles = roleService.getAllRoles();
+        return Result.success(roles, "获取角色列表成功");
     }
+
+
+//    /**
+//     * 获取当前登录用户的权限（菜单和仓库）
+//     */
+//    @GetMapping("/my-permissions")
+//    @Operation(summary = "获取当前用户权限")
+//    public Result<Object> getCurrentUserPermissions() {
+//        String userId = UserHolder.getUser().getId();
+//        String userRoleId = UserHolder.getUser().getRoleId();
+//
+//        // 检查是否为超级管理员
+//        boolean isSuperAdmin = userRoleId != null && userRoleId.equals("ROLE_001");
+//
+//        if (isSuperAdmin) {
+//            // 超级管理员拥有所有权限
+//            List<Menu> allMenus = permissionService.getAllMenus();
+//            List<Warehouse> allWarehouses = permissionService.getAllWarehouses();
+//
+//            // 构建权限对象
+//            var permissions = new Object() {
+//                public List<Menu> menus = allMenus;
+//                public List<Warehouse> warehouses = allWarehouses;
+//                public Boolean isSuperAdmin = true;
+//            };
+//
+//            return Result.success(permissions, "获取当前用户权限成功");
+//        } else {
+//            // 普通用户只拥有分配的权限
+//            List<Menu> userMenus = permissionService.getUserMenus(userId);
+//            List<Warehouse> userWarehouses = permissionService.getUserWarehouses(userId);
+//
+//            // 构建权限对象
+//            var permissions = new Object() {
+//                public List<Menu> menus = userMenus;
+//                public List<Warehouse> warehouses = userWarehouses;
+//                public Boolean isSuperAdmin = false;
+//            };
+//
+//            return Result.success(permissions, "获取当前用户权限成功");
+//        }
+//    }
 
     /**
      * 获取角色拥有的菜单权限
@@ -188,36 +206,7 @@ public class PermissionController {
         return Result.success(warehouses, "获取所有仓库成功");
     }
 
-    /**
-     * 获取用户列表（用于权限分配界面）
-     */
-    @GetMapping("/users")
-    @Operation(summary = "获取用户列表")
-    public Result<List<User>> getUserList() {
-        // 检查当前用户是否为超级管理员
-        if (UserHolder.getUser().getRoleId() == null || !UserHolder.getUser().getRoleId().equals("ROLE_001")) {
-            return Result.error("权限不足，只有超级管理员可以访问此功能");
-        }
-        
-        // 使用UserService接口中定义的getUserList方法获取所有用户
-        // 通过传递空参数获取所有用户
-        var userListPage = userService.getUserList(null, null, null, 1, Integer.MAX_VALUE);
-        List<User> users = userListPage.getRecords();
-        return Result.success(users, "获取用户列表成功");
-    }
+
     
-    /**
-     * 获取角色列表（用于权限分配界面）
-     */
-    @GetMapping("/roles")
-    @Operation(summary = "获取角色列表")
-    public Result<List<Role>> getRoleList() {
-        // 检查当前用户是否为超级管理员
-        if (UserHolder.getUser().getRoleId() == null || !UserHolder.getUser().getRoleId().equals("ROLE_001")) {
-            return Result.error("权限不足，只有超级管理员可以访问此功能");
-        }
-        
-        List<Role> roles = roleService.getAllRoles();
-        return Result.success(roles, "获取角色列表成功");
-    }
+
 }

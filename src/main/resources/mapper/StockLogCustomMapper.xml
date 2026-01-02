@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yf.mapper.StockLogCustomMapper">
 
-    <select id="selectTransferLogs" resultType="com.yf.entity.vo.TransferVO">
+    <select id="selectTransferLogs" resultType="com.yf.entity.vo.PageResult.TransferVO">
         SELECT
             s1.goods_id AS goodsId,
             g.name AS goodsName,

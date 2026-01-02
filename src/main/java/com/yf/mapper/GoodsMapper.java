@@ -3,7 +3,7 @@ package com.yf.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yf.entity.Goods;
-import com.yf.entity.dto.GoodsPageQueryDTO;
+import com.yf.entity.dto.page.GoodsPageQueryDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 

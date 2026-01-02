@@ -15,6 +15,6 @@ public interface WarehouseMapper extends BaseMapper<Warehouse> {
      */
     @Select("SELECT w.* FROM xmut_warehouse w " +
             "LEFT JOIN xmut_user_warehouse uw ON w.id = uw.warehouse_id " +
-            "WHERE uw.userId = #{userId}")
+            "WHERE uw.user_id = #{userId}")
     List<Warehouse> getWarehousesByUserId(@Param("userId") String userId);
 }

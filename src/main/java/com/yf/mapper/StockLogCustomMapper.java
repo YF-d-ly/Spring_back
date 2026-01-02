@@ -1,8 +1,7 @@
 package com.yf.mapper;
 
-import com.yf.entity.StockLog;
 import com.yf.entity.vo.GoodsRankVO;
-import com.yf.entity.vo.TransferVO;
+import com.yf.entity.vo.PageResult.TransferVO;
 import com.yf.entity.vo.WarehouseDailyTrendVO;
 import com.yf.entity.vo.WarehouseGoodsInventoryVO;
 import com.yf.entity.vo.WarehouseGoodsRankVO;

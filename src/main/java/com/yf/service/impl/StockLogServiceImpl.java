@@ -7,14 +7,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yf.constant.stockConstant;
 import com.yf.entity.Goods;
 import com.yf.entity.StockLog;
-import com.yf.entity.Warehouse;
 import com.yf.entity.dto.InboundDTO;
 import com.yf.entity.dto.OutboundDTO;
-import com.yf.entity.dto.StockLogQueryDTO;
+import com.yf.entity.dto.page.StockLogQueryDTO;
 import com.yf.entity.dto.TransferDTO;
 import com.yf.entity.vo.GoodsRankVO;
-import com.yf.entity.vo.StockLogVO;
-import com.yf.entity.vo.TransferVO;
+import com.yf.entity.vo.PageResult.StockLogVO;
+import com.yf.entity.vo.PageResult.TransferVO;
 import com.yf.entity.vo.WarehouseDailyTrendVO;
 import com.yf.entity.vo.WarehouseGoodsRankVO;
 import com.yf.entity.vo.WarehouseGoodsInventoryVO;
@@ -31,8 +30,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import java.util.function.Function;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j

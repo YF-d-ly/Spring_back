@@ -1,4 +1,4 @@
-package com.yf.entity.vo;
+package com.yf.entity.vo.Login;
 
 import com.yf.entity.Menu;
 import com.yf.entity.Warehouse;
