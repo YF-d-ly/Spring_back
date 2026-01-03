@@ -3,14 +3,17 @@ package com.yf.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yf.entity.User;
-import com.yf.entity.dto.LoginDTO;
+import com.yf.entity.dto.Login.LoginDTO;
+import com.yf.entity.dto.Login.RegisterFormDTO;
 import com.yf.entity.dto.page.UserQueryDTO;
 import com.yf.entity.vo.Login.UserPermissionVO;
 import com.yf.util.PageResult;
+import jakarta.validation.constraints.Email;
 
 public interface UserService extends IService<User> {
 
     UserPermissionVO login(LoginDTO loginDTO);
+    UserPermissionVO loginByEmailCode(LoginDTO loginDTO);
     void logout(String token);
 
     // 用户管理功能
@@ -31,4 +34,8 @@ public interface UserService extends IService<User> {
     boolean updateStatus(String id, Integer status);
     
     User getUserById(String id);
+
+    void sendCode(@Email String email);
+    
+    UserPermissionVO registerByEmail(RegisterFormDTO registerFormDTO);
 }

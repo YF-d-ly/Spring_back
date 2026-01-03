@@ -12,26 +12,30 @@ import com.yf.entity.Menu;
 import com.yf.entity.Role;
 import com.yf.entity.User;
 import com.yf.entity.Warehouse;
-import com.yf.entity.dto.LoginDTO;
+import com.yf.entity.dto.Login.LoginDTO;
+import com.yf.entity.dto.Login.RegisterFormDTO;
 import com.yf.entity.dto.UserDTO;
 import com.yf.entity.dto.page.UserQueryDTO;
 import com.yf.entity.vo.Login.UserPermissionVO;
+import com.yf.handler.BusinessException;
 import com.yf.mapper.MenuMapper;
 import com.yf.mapper.RoleMapper;
 import com.yf.mapper.UserMapper;
-import com.yf.mapper.UserMenuMapper;
-import com.yf.mapper.UserWarehouseMapper;
 import com.yf.mapper.WarehouseMapper;
 import com.yf.service.UserService;
 
 import com.yf.util.HutoolJwtUtil;
+import com.yf.util.MailUtils;
 import com.yf.util.PageResult;
+import com.yf.util.RegexUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -51,11 +55,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     private WarehouseMapper warehouseMapper;
 
-    @Autowired
-    private UserMenuMapper userMenuMapper;
 
-    @Autowired
-    private UserWarehouseMapper userWarehouseMapper;
 
     @Autowired
     private HutoolJwtUtil hutoolJwtUtil;
@@ -68,6 +68,64 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Value("${jwt.expiration:86400}")
     private Long expiration; // 过期时间，秒
+
+    @Autowired
+    private TemplateEngine templateEngine; // 注入模板引擎
+
+    @Autowired
+    private MailUtils mailUtils;
+
+
+
+    @Override
+    public void sendCode(String email) {
+        // 1. 校验手机号格式
+        if (RegexUtils.isEmailInvalid(email)) {
+            throw new BusinessException("邮箱格式错误");
+        }
+
+        // 2. 检查发送频率（防止频繁发送）
+        String frequencyKey = "code:frequency:" + email;
+        String frequency = (String) redisTemplate.opsForValue().get(frequencyKey);
+
+        if (frequency != null) {
+            throw new BusinessException("请求过于频繁，请稍后再试");
+        }
+
+        // 3. 生成验证码
+        String code = MailUtils.generateCode();
+
+        // 4. 保存验证码到Redis，有效期2分钟
+        String codeKey = RedisConstants.LOGIN_CODE_KEY + email;
+        redisTemplate.opsForValue().set(codeKey, code, Duration.ofMinutes(RedisConstants.LOGIN_CODE_TTL));
+
+        // 5. 设置频率限制，1分钟内不能重复发送
+        redisTemplate.opsForValue().set(frequencyKey, "1", Duration.ofMinutes(1));
+
+        // 6. 发送邮件
+        try {
+            // 创建Thymeleaf上下文对象
+            Context context = new Context();
+            // 设置模板中的变量。这里的键必须与模板中的变量名一致。
+            context.setVariable("verificationCode", code); // 验证码
+            // 如果您能获取到用户名，也可以传入，使邮件更个性化
+            // context.setVariable("username", username);
+            // 渲染模板，生成HTML字符串
+            String emailContent = templateEngine.process("email-template", context);
+            mailUtils.sendMail(email, "您的登录验证码", emailContent, true);
+            log.info("发送验证码成功: {} -> {}",email, code);
+        } catch (Exception e) {
+            log.error("邮件发送失败: {}", email, e);
+            throw new BusinessException("邮件发送失败，请稍后重试");
+        }
+
+    }
+
+    @Override
+    public UserPermissionVO registerByEmail(RegisterFormDTO registerFormDTO) {
+        return null;
+    }
+
 
     @Override
     public UserPermissionVO login(LoginDTO loginDTO) {
@@ -123,6 +181,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .menus(menus)
                 .warehouses(warehouses)
                 .build();
+    }
+
+    @Override
+    public UserPermissionVO loginByEmailCode(LoginDTO loginDTO) {
+        return null;
     }
 
     /**

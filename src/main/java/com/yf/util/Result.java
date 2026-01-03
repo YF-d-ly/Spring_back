@@ -45,4 +45,8 @@ public class Result<T> {
     public static Result<String> unauthorized(String message) {
         return new Result<>(401, message, null);
     }
+
+    public static Result fail(String message) {
+        return new Result<>(500, message, null);
+    }
 }
