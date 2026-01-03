@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -39,6 +40,15 @@ public class GlobalExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.joining("; "));
         log.warn("参数校验异常: {}", message);
+        return Result.fail(message);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public Result handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        String parameterName = e.getParameterName();
+        String parameterType = e.getParameterType();
+        String message = String.format("缺少必需的请求参数 '%s'，参数类型为 %s", parameterName, parameterType);
+        log.warn("参数缺失异常: {}", message);
         return Result.fail(message);
     }
 

@@ -98,8 +98,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public List<Warehouse> getUserWarehouses(String userId) {
-
-        return List.of();
+        return warehouseMapper.getWarehousesByUserId(userId);
     }
 
     @Override

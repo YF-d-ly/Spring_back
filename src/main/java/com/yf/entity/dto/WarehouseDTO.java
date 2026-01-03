@@ -12,6 +12,9 @@ public class WarehouseDTO {
     @Schema(description = "仓库名称")
     private String name;
 
+    @Schema(description = "仓库描述")
+    private String description;
+
     @Schema(description = "仓库地址")
     private String address;
 

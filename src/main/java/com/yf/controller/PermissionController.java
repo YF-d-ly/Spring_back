@@ -1,8 +1,9 @@
 package com.yf.controller;
 
+import com.yf.entity.dto.AssignMenuPermissionDTO;
+import com.yf.entity.dto.AssignWarehousePermissionDTO;
 import com.yf.entity.Menu;
 import com.yf.entity.Role;
-import com.yf.entity.User;
 import com.yf.entity.Warehouse;
 import com.yf.service.PermissionService;
 import com.yf.service.RoleService;
@@ -37,11 +38,22 @@ public class PermissionController {
      */
     @PostMapping("/assign-menu")
     @Operation(summary = "分配角色菜单权限")
-    public Result<Boolean> assignMenuPermissions(@RequestParam String roleId, 
-                                                @RequestParam List<String> menuIds) {
+    public Result<Boolean> assignMenuPermissions(@RequestBody AssignMenuPermissionDTO assignMenuPermissionDTO) {
+        String roleId = assignMenuPermissionDTO.getRoleId();
+        List<String> menuIds = assignMenuPermissionDTO.getMenuIds();
+        
         // 检查当前用户是否为超级管理员
         if (UserHolder.getUser().getRoleId() == null || !UserHolder.getUser().getRoleId().equals("ROLE_001")) {
             return Result.error("权限不足，只有超级管理员可以访问此功能");
+        }
+        
+        // 验证参数是否存在
+        if (roleId == null || roleId.trim().isEmpty()) {
+            return Result.error("角色ID不能为空");
+        }
+        
+        if (menuIds == null || menuIds.isEmpty()) {
+            return Result.error("菜单ID列表不能为空");
         }
         
         boolean result = permissionService.assignMenuPermissionsToRole(roleId, menuIds);
@@ -53,11 +65,22 @@ public class PermissionController {
      */
     @PostMapping("/assign-warehouse")
     @Operation(summary = "分配用户仓库权限")
-    public Result<Boolean> assignWarehousePermissions(@RequestParam String userId, 
-                                                     @RequestParam List<String> warehouseIds) {
+    public Result<Boolean> assignWarehousePermissions(@RequestBody AssignWarehousePermissionDTO assignWarehousePermissionDTO) {
+        String userId = assignWarehousePermissionDTO.getUserId();
+        List<String> warehouseIds = assignWarehousePermissionDTO.getWarehouseIds();
+        
         // 检查当前用户是否为超级管理员
         if (UserHolder.getUser().getRoleId() == null || !UserHolder.getUser().getRoleId().equals("ROLE_001")) {
             return Result.error("权限不足，只有超级管理员可以访问此功能");
+        }
+        
+        // 验证参数是否存在
+        if (userId == null || userId.trim().isEmpty()) {
+            return Result.error("用户ID不能为空");
+        }
+        
+        if (warehouseIds == null || warehouseIds.isEmpty()) {
+            return Result.error("仓库ID列表不能为空");
         }
         
         boolean result = permissionService.assignWarehousePermissions(userId, warehouseIds);

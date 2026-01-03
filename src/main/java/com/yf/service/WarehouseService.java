@@ -11,8 +11,12 @@ public interface WarehouseService extends IService<Warehouse> {
     void save(WarehouseDTO warehouseDTO);
 
     void updateById(WarehouseDTO warehouseDTO);
-    
+
     PageResult<WarehouseVO> pageQuery(WarehouseQueryDTO queryDTO);
+    
+    PageResult<WarehouseVO> pageQueryByUserPermission(WarehouseQueryDTO queryDTO, String userId);
+    
+    boolean hasWarehousePermission(String userId, String warehouseId);
 
 
 }
