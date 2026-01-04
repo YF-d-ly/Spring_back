@@ -18,4 +18,11 @@ public class PageResult<T> {
         this.total = total;
         this.records = records;
     }
+    
+    /**
+     * 创建空的分页结果
+     */
+    public static <T> PageResult<T> empty(Long page, Long size) {
+        return new PageResult<>(0L, List.of(), 0L, size, page);
+    }
 }

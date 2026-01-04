@@ -1,6 +1,5 @@
 package com.yf.handler;
 
-
 import com.yf.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -9,9 +8,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.stream.Collectors;
-
 
 @RestControllerAdvice
 @Slf4j
@@ -50,6 +49,12 @@ public class GlobalExceptionHandler {
         String message = String.format("缺少必需的请求参数 '%s'，参数类型为 %s", parameterName, parameterType);
         log.warn("参数缺失异常: {}", message);
         return Result.fail(message);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public Result handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+        log.warn("文件上传大小超出限制: {}", e.getMessage());
+        return Result.fail("文件大小超出限制，最大允许上传10MB");
     }
 
     @ExceptionHandler(Exception.class)

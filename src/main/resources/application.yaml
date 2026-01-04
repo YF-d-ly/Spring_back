@@ -3,11 +3,33 @@ server:
 
 
 spring:
+  profiles:
+    active: dev  # 默认使用开发环境
+
+  # 热部署配置
+  devtools:
+    restart:
+      enabled: true  # 启用热部署
+      additional-paths: src/main/java  # 监听源码变更
+    livereload:
+      enabled: true  # 启用LiveReload
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/xmut_warehouse?serverTimezone=UTC
     username: root
     password: 123456
+
+  servlet:
+    multipart:
+      max-file-size: 1MB
+      max-request-size: 2MB
+
+  file:
+    upload:
+      base-dir: ./uploads
+      access-path: /uploaded/**
+
   mail:
     host: smtp.qq.com
     port: 587
@@ -20,7 +42,6 @@ spring:
           starttls:
             enable: true
             required: true
-
 
 mybatis-plus:
   mapper-locations:  classpath:mapper/*.xml
@@ -42,8 +63,8 @@ springdoc:
     path: /swagger-ui.html
     operations-sorter: method
   default-flat-param-object: true
-  
-  
+
+
 jwt:
   secret: xmut_warehouse_secret_key_change_me
   expiration: 86400  # 24小时
@@ -55,3 +76,7 @@ knife4j:
     swagger-model-name: 实体类列表
   # 开启生产环境屏蔽（可选）
   production: false
+
+logging:
+  level:
+    org.springframework.boot.devtools: INFO  # 开发工具日志级别

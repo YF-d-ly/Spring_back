@@ -34,4 +34,11 @@ public interface GoodsService extends IService<Goods> {
      * @param num 调货数量
      */
     void updateStockForTransfer(String goodsId, String sourceWarehouseId, String targetWarehouseId, Integer num);
+
+    /**
+     * 根据用户仓库权限分页查询货品列表
+     * @param queryDTO 查询参数
+     * @return 分页结果
+     */
+    PageResult<GoodVO> pageQueryWithUserPermission(GoodsPageQueryDTO queryDTO);
 }

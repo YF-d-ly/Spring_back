@@ -5,16 +5,21 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yf.entity.Category;
 import com.yf.entity.Goods;
+import com.yf.entity.UserWarehouse;
 import com.yf.entity.Warehouse;
+import com.yf.entity.dto.UserDTO;
 import com.yf.entity.dto.page.GoodsPageQueryDTO;
 import com.yf.entity.vo.select.GoodNameVO;
 import com.yf.entity.vo.PageResult.GoodVO;
-
+import com.yf.handler.BusinessException;
 import com.yf.mapper.GoodsMapper;
 import com.yf.service.CategoryService;
 import com.yf.service.GoodsService;
+import com.yf.service.UserWarehouseService;
 import com.yf.service.WarehouseService;
+
 import com.yf.util.PageResult;
+import com.yf.util.UserHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -41,6 +46,9 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements
 
     @Autowired
     private WarehouseService warehouseService;
+
+    @Autowired
+    private UserWarehouseService userWarehouseService;
 
     @Override
     public void updateStockForTransfer(String goodsId, String sourceWarehouseId, String targetWarehouseId, Integer num) {
@@ -126,7 +134,7 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements
             return GoodVO.builder()
                     .id(goods.getId())
                     .name(goods.getName())
-                    .image(goods.getImageUrl())
+                    .imageUrl(goods.getImageUrl())
                     .price(goods.getPrice())
                     .stock(goods.getStock())
                     .description(goods.getDescription())
@@ -148,33 +156,141 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements
         );
 
     }
-
     
     @Override
     public String uploadImage(MultipartFile file) {
-        try {
-            // 生成唯一文件名
-            String originalFileName = file.getOriginalFilename();
-            String extension = originalFileName != null ? originalFileName.substring(originalFileName.lastIndexOf('.')) : ".jpg";
-            String fileName = UUID.randomUUID().toString() + extension;
-            
-            // 定义上传目录
-            String uploadDir = "uploads/";
-            Path uploadPath = Paths.get(uploadDir);
-            
-            // 创建上传目录
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-            
-            // 保存文件
-            Path filePath = uploadPath.resolve(fileName);
-            file.transferTo(filePath.toFile());
-            
-            // 返回文件访问路径
-            return "/uploads/" + fileName;
-        } catch (IOException e) {
-            throw new RuntimeException("文件上传失败: " + e.getMessage());
+        // 此方法不再使用，现在使用UploadFileUtil进行文件上传
+        throw new UnsupportedOperationException("请使用FileUploadController直接上传文件");
+    }
+
+
+
+    @Override
+    public PageResult<GoodVO> pageQueryWithUserPermission(GoodsPageQueryDTO queryDTO) {
+        // 1. 权限检查与数据准备
+        List<String> warehouseIds = getAuthorizedWarehouseIds();
+
+        // 2. 使用PageHelper进行分页
+        com.github.pagehelper.PageHelper.startPage(queryDTO.getPage(), queryDTO.getSize());
+        
+        // 3. 构建查询条件并执行查询
+        LambdaQueryWrapper<Goods> queryWrapper = buildQueryWrapperForPermission(queryDTO, warehouseIds);
+        List<Goods> goodsList = goodsMapper.selectList(queryWrapper);
+
+        // 4. 转换为分页结果
+        com.github.pagehelper.PageInfo<Goods> pageInfo = new com.github.pagehelper.PageInfo<>(goodsList);
+        
+        // 5. 转换为VO并返回
+        return convertToPageResultWithPageInfo(pageInfo, goodsList);
+    }
+
+    /**
+     * 获取当前用户有权限的仓库ID列表（超级管理员返回空列表代表所有仓库）
+     */
+    private List<String> getAuthorizedWarehouseIds() {
+        UserDTO currentUser = UserHolder.getUser();
+
+        // 超级管理员直接返回空列表，在查询时不加仓库限制
+        if (isSuperAdmin(currentUser)) {
+            return List.of();
         }
+
+        return userWarehouseService.lambdaQuery()
+                .eq(UserWarehouse::getUserId, currentUser.getId())
+                .list()
+                .stream()
+                .map(UserWarehouse::getWarehouseId)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 判断是否为超级管理员
+     */
+    private boolean isSuperAdmin(UserDTO user) {
+        return user != null && user.getRoleId() != null && "ROLE_001".equals(user.getRoleId());
+    }
+
+    /**
+     * 构建查询条件（用于权限控制）
+     */
+    private LambdaQueryWrapper<Goods> buildQueryWrapperForPermission(GoodsPageQueryDTO queryDTO, List<String> warehouseIds) {
+        LambdaQueryWrapper<Goods> queryWrapper = new LambdaQueryWrapper<>();
+
+        // 只有非超级管理员（warehouseIds不为空）才添加仓库限制
+        if (!warehouseIds.isEmpty()) {
+            queryWrapper.in(Goods::getWarehouseId, warehouseIds);
+        }
+
+        // 链式设置查询条件
+        queryWrapper.like(StringUtils.hasText(queryDTO.getName()), Goods::getName, queryDTO.getName())
+                .eq(StringUtils.hasText(queryDTO.getCategoryId()), Goods::getCategoryId, queryDTO.getCategoryId())
+                .ge(queryDTO.getMinPrice() != null, Goods::getPrice, queryDTO.getMinPrice())
+                .le(queryDTO.getMaxPrice() != null, Goods::getPrice, queryDTO.getMaxPrice());
+
+        // 处理指定仓库的权限验证
+        if (StringUtils.hasText(queryDTO.getWarehouseId())) {
+            if (warehouseIds.isEmpty() || warehouseIds.contains(queryDTO.getWarehouseId())) {
+                queryWrapper.eq(Goods::getWarehouseId, queryDTO.getWarehouseId());
+            } else {
+                throw new BusinessException("无该仓库的操作权限");
+            }
+        }
+
+        return queryWrapper;
+    }
+
+    /**
+     * 转换为分页结果（使用PageInfo）
+     */
+    private PageResult<GoodVO> convertToPageResultWithPageInfo(com.github.pagehelper.PageInfo<Goods> pageInfo, List<Goods> goodsList) {
+        if (goodsList.isEmpty()) {
+            return new PageResult<>(0L, List.of(), 0L, Long.valueOf(pageInfo.getPageSize()), Long.valueOf(pageInfo.getPageNum()));
+        }
+
+        // 批量查询分类和仓库信息（避免N+1查询问题）
+        Map<String, String> categoryMap = getCategoryMap();
+        Map<String, String> warehouseMap = getWarehouseMap();
+
+        // 使用Stream转换记录
+        List<GoodVO> voList = goodsList.stream()
+                .map(goods -> convertToGoodVO(goods, categoryMap, warehouseMap))
+                .collect(Collectors.toList());
+
+        return new PageResult<GoodVO>(pageInfo.getTotal(), voList, Long.valueOf(pageInfo.getPages()),
+                Long.valueOf(pageInfo.getPageSize()), Long.valueOf(pageInfo.getPageNum()));
+    }
+
+    /**
+     * 转换为GoodVO
+     */
+    private GoodVO convertToGoodVO(Goods goods, Map<String, String> categoryMap, Map<String, String> warehouseMap) {
+        return GoodVO.builder()
+                .id(goods.getId())
+                .name(goods.getName())
+                .imageUrl(goods.getImageUrl())
+                .price(goods.getPrice())
+                .stock(goods.getStock())
+                .description(goods.getDescription())
+                .categoryId(goods.getCategoryId())
+                .categoryName(categoryMap.getOrDefault(goods.getCategoryId(), "未知类别"))
+                .warehouseId(goods.getWarehouseId())
+                .warehouseName(warehouseMap.getOrDefault(goods.getWarehouseId(), "未知仓库"))
+                .build();
+    }
+
+    /**
+     * 获取分类映射
+     */
+    private Map<String, String> getCategoryMap() {
+        return categoryService.list().stream()
+                .collect(Collectors.toMap(Category::getId, Category::getName));
+    }
+
+    /**
+     * 获取仓库映射
+     */
+    private Map<String, String> getWarehouseMap() {
+        return warehouseService.list().stream()
+                .collect(Collectors.toMap(Warehouse::getId, Warehouse::getName));
     }
 }

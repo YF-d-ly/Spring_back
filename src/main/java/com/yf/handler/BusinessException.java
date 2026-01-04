@@ -1,5 +1,8 @@
 package com.yf.handler;
 
+import lombok.Getter;
+
+@Getter
 public class BusinessException extends RuntimeException {
 
     private Integer code;
@@ -14,7 +17,4 @@ public class BusinessException extends RuntimeException {
         this.code = code;
     }
 
-    public Integer getCode() {
-        return code;
-    }
 }

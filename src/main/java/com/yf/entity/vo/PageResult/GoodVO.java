@@ -22,7 +22,7 @@ public class GoodVO {
     private String description;
     
     @Schema(description = "图片")
-    private String image;
+    private String imageUrl;
     
     @Schema(description = "价格")
     private Double price;

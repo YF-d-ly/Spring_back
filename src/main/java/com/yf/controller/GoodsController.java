@@ -51,7 +51,7 @@ public class GoodsController {
                     .id(good.getId())
                     .name(good.getName())
                     .description(good.getDescription())
-                    .image(good.getImageUrl())
+                    .imageUrl(good.getImageUrl())
                     .price(good.getPrice())
                     .stock(good.getStock())
                     .categoryName(categoryName)
@@ -99,6 +99,19 @@ public class GoodsController {
 
     }
 
+    @GetMapping("/page-with-permission")
+    public Result<PageResult<GoodVO>> pageQueryWithPermission(GoodsPageQueryDTO queryDTO) {
+        // 参数验证
+        if (queryDTO.getPage() == null || queryDTO.getPage() < 1) {
+            queryDTO.setPage(1);
+        }
+        if (queryDTO.getSize() == null || queryDTO.getSize() < 1) {
+            queryDTO.setSize(10);
+        }
+        PageResult<GoodVO> pageResult = goodsService.pageQueryWithUserPermission(queryDTO);
+
+        return Result.success(pageResult, "获取货品列表成功（按权限过滤）");
+    }
 
     // 添加货品
     @PostMapping("/add")
@@ -138,7 +151,7 @@ public class GoodsController {
         goods.setWarehouseId(goodsDTO.getWarehouseId());
         goods.setStock(goodsDTO.getStock());
         goods.setPrice(goodsDTO.getPrice());
-        goods.setImageUrl(goodsDTO.getImageUrl());
+        goods.setImageUrl("api"+goodsDTO.getImageUrl());
         goods.setDescription(goodsDTO.getDescription());
 
         boolean result = goodsService.updateById(goods);

@@ -1,16 +1,18 @@
 package com.yf.config;
 
-
 import com.yf.interceptor.LoginInterceptor;
 import com.yf.interceptor.RefreshTokenInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+
 
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
-
 
     @Autowired
     private RefreshTokenInterceptor refreshTokenInterceptor;
@@ -35,7 +37,10 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/auth/code",
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
-                        "/doc.html/**")
+                        "/doc.html/**",
+                        "/images/**"
+                        )
                 .order(1); // 排除不需要登录的路径
     }
+
 }
